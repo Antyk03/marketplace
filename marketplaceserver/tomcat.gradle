@@ -1,0 +1,82 @@
+import java.util.Locale
+
+// Usare una closure lazy per leggere la proprietà senza rompere la configuration cache
+def tomcatDirProp = project.findProperty('tomcatDir') ?: ''
+
+task checkTomcatProperties {
+    // fase di configurazione sicura per la configuration cache
+    doFirst {
+        def errori = ""
+        if (tomcatDirProp.toString().blank) {
+            errori += "tomcatDir "
+        }
+
+        if (!errori.blank) {
+            throw new GradleException("""
+            ################################################################
+            #                      ERRORE                                  #
+            ################################################################
+            Impostare le seguenti proprieta' nel file gradle.properties: $errori
+            """)
+        }
+    }
+
+    doLast {
+        println("Tutte le proprietà necessarie sono impostate correttamente.")
+    }
+}
+
+def osName = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+
+task startTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
+    group = "Tomcat"
+    description = "Avvia il server applicativo locale."
+    workingDir = file("${tomcatDirProp}/bin")
+
+    doFirst {
+        if (osName.contains('windows')) {
+            commandLine 'cmd', '/c', 'catalina.bat', 'run'
+        } else if (osName.contains('mac') || osName.contains('linux')) {
+            commandLine './catalina.sh', 'run'
+        } else {
+            throw new GradleException('Sistema operativo non supportato...')
+        }
+    }
+}
+
+task stopTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
+    group = "Tomcat"
+    description = "Ferma il server applicativo"
+    workingDir = file("${tomcatDirProp}/bin")
+
+    doFirst {
+        if (osName.contains('windows')) {
+            commandLine 'cmd', '/c', 'catalina.bat', 'stop'
+        } else if (osName.contains('mac') || osName.contains('linux')) {
+            commandLine './catalina.sh', 'stop'
+        } else {
+            throw new GradleException('Sistema operativo non supportato...')
+        }
+    }
+
+    doLast {
+        println("Tomcat è stato fermato.")
+    }
+}
+
+task deploy(type: Copy, dependsOn: [checkTomcatProperties, war]) {
+    group = "Tomcat"
+    description = "Genera e installa il war nella cartella webapp di Tomcat"
+    from war.archiveFile
+    into "${tomcatDirProp}/webapps"
+}
+
+task undeploy(type: Delete, dependsOn: [checkTomcatProperties, war]) {
+    group = "Tomcat"
+    description = "Elimina il file war nella cartella webapp di Tomcat"
+    delete "${tomcatDirProp}/webapps/${war.archiveFileName.get()}"
+}
+
+war {
+    archiveFileName = "${project.name}.war"
+}
