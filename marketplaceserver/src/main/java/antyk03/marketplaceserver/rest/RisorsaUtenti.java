@@ -35,6 +35,7 @@ public class RisorsaUtenti {
         return serviceUtenti.login(utenteDTO);
     }
 
+    /*
     @PermitAll
     @GET
     @Path("/check")
@@ -42,6 +43,6 @@ public class RisorsaUtenti {
     public String check() {
         log.info("Eseguo controllo GET /utenti/check");
         return "Servizio utenti attivo!";
-    }
+    }*/
 
 }
