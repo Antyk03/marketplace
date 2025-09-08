@@ -1,5 +1,8 @@
 package antyk03.marketplaceserver.filtri;
 
+import antyk03.marketplaceserver.modello.Utente;
+import antyk03.marketplaceserver.persistenza.DAOFactory;
+import antyk03.marketplaceserver.persistenza.IDAOUtente;
 import antyk03.marketplaceserver.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -30,6 +33,7 @@ public class AutenticationFilter implements ContainerRequestFilter {
     private static final ObjectMapper mapper = new ObjectMapper();
     @Context
     private ResourceInfo resourceInfo;
+    private IDAOUtente daoUtente = DAOFactory.getInstance().getDaoUtente();
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -54,13 +58,13 @@ public class AutenticationFilter implements ContainerRequestFilter {
         try {
             String emailUtente = JWTUtil.verificaToken(token);
             log.debug("Utente verificato: {}", emailUtente);
-            /*
-            Utente utente = daoUtente.findByEmail(emailUtente);
+            SecurityContext originalContext = requestContext.getSecurityContext();
+            requestContext.setSecurityContext(new AppSecurityContext(emailUtente, originalContext.isSecure(), "Bearer"));
+            /*Utente utente = daoUtente.findByEmail(emailUtente);
             if (utente == null) {
                 interrompiRichiesta("Utente " + emailUtente + " non trovato", requestContext);
                 return;
-            }
-            */
+            }*/
         } catch (Exception ex) {
             log.error("Errore durante la validazione del token {}", ex.getMessage(), ex);
             interrompiRichiesta("Token di autorizzazione non valido", requestContext);
@@ -92,12 +96,7 @@ public class AutenticationFilter implements ContainerRequestFilter {
 
         @Override
         public Principal getUserPrincipal() {
-            return new Principal() {
-                @Override
-                public String getName() {
-                    return username;
-                }
-            };
+            return () -> username;
         }
 
         @Override

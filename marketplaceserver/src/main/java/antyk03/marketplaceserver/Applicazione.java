@@ -16,11 +16,4 @@ public class Applicazione extends Application {
         log.info("Applicazione creata...");
     }
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-        classes.add(RisorsaUtenti.class); // aggiungi tutte le risorse manualmente
-        return classes;
-    }
-
 }

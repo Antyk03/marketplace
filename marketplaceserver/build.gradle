@@ -19,7 +19,7 @@ dependencies {
     implementation 'org.glassfish.jersey.ext:jersey-bean-validation:3.1.11' // Validazione Bean
     implementation 'org.glassfish.jersey.media:jersey-media-json-jackson:3.1.11' // Supporto JSON con Jackson
     implementation 'org.glassfish.jersey.inject:jersey-hk2:3.1.11' // Dependency Injection con HK2
-    implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0' // non c'è
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet:3.1.11'
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:3.1.11'
     implementation 'org.glassfish.jersey.ext.cdi:jersey-cdi1x:3.1.2'
@@ -88,6 +88,3 @@ testing {
 
 apply from: 'tomcat.gradle' // Applicazione delle configurazioni specifiche per Tomcat
 
-tasks.withType(JavaExec) {
-    systemProperty "jwtSecret", project.property("jwtSecret")
-}

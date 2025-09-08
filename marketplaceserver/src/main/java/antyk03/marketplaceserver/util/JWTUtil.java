@@ -1,5 +1,6 @@
 package antyk03.marketplaceserver.util;
 
+import antyk03.marketplaceserver.modello.Configurazione;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
@@ -15,7 +16,7 @@ import java.time.ZonedDateTime;
 @Slf4j
 public class JWTUtil {
 
-    private static final String SECRET_KEY = System.getProperty("jwtSecret");
+    private static final String SECRET_KEY = Configurazione.getInstance().getJwtSecret();
 
     public static String generaToken(String email) {
         try {
