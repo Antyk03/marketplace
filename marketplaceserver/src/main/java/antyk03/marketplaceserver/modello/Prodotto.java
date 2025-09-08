@@ -1,8 +1,10 @@
 package antyk03.marketplaceserver.modello;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Prodotto {
 
     private Long id;
@@ -17,5 +19,6 @@ public class Prodotto {
         this.prezzo = prezzo;
         this.quantita = quantita;
     }
+
 
 }

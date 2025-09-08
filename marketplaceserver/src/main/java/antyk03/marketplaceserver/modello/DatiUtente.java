@@ -3,6 +3,9 @@ package antyk03.marketplaceserver.modello;
 import antyk03.marketplaceserver.enums.ERuolo;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class DatiUtente {
 
@@ -11,12 +14,22 @@ public class DatiUtente {
     private String username;
     private String email;
     private ERuolo ruolo;
+    private List<Prodotto> prodotti = new ArrayList<>();
 
     public DatiUtente(Long idUtente, String username ,String email, ERuolo ruolo) {
         this.idUtente = idUtente;
         this.username = username;
         this.email = email;
         this.ruolo = ruolo;
+    }
+
+    public Prodotto getProdottoById(Long id) {
+        for (Prodotto p: prodotti) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
     }
 
 }

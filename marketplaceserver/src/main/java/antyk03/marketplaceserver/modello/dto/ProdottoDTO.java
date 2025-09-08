@@ -8,7 +8,6 @@ import lombok.Data;
 @Data
 public class ProdottoDTO {
 
-    @NotBlank
     private Long id;
     @NotBlank
     private String nome;
@@ -18,7 +17,5 @@ public class ProdottoDTO {
     private float prezzo;
     @Min(1)
     private int quantita;
-
-
 
 }
