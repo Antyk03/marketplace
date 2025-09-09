@@ -5,6 +5,7 @@ import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
 import antyk03.marketplaceserver.service.ServiceDatiUtente;
 import antyk03.marketplaceserver.service.ServiceUtenti;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -68,6 +69,14 @@ public class RisorsaDatiUtente {
         }
         String email = securityContext.getUserPrincipal().getName();
         serviceDatiUtente.modificaRimuoviProdotto(idProdotto, prodottoDTO, email);
+    }
+
+    @PermitAll
+    @GET
+    @Path("/catalogo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProdottoDTO> visualizzaCatalogo () {
+        return serviceDatiUtente.visualizzaCatalogo();
     }
 
 }

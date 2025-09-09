@@ -50,12 +50,16 @@ public class ServiceDatiUtente {
             log.info("findByEmail/ Nessun dato utente trovato");
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
         }
+        if (prodottoDTO.getIdVenditore() != null && prodottoDTO.getIdVenditore() != datiUtente.getIdUtente()) {
+            throw new IllegalArgumentException("Id degli utenti non coincidenti.");
+        }
         if (datiUtente.getRuolo() == ERuolo.USER) {
             log.info("findByEmail/ Semplice utente, non venditore.");
             throw new IllegalArgumentException("Non hai il permesso per vendere.");
         }
         Prodotto prodotto = Mapper.map(prodottoDTO, Prodotto.class);
         datiUtente.getProdotti().add(prodotto);
+        prodotto.setIdVenditore(datiUtente.getIdUtente());
         daoDatiUTente.makePersistent(datiUtente);
         daoProdotto.makePersistent(prodotto);
         return prodotto.getId();
@@ -93,6 +97,9 @@ public class ServiceDatiUtente {
         if (datiUtente == null) {
             throw new IllegalArgumentException("Impossibile trovare dati per utente");
         }
+        if (datiUtente.getRuolo() == ERuolo.USER) {
+            throw new IllegalArgumentException("Non hai il permesso per vendere.");
+        }
         Prodotto p = daoProdotto.findById(idProdotto);
         if (p == null) {
             throw new IllegalArgumentException("Nessun prodotto trovato con l'id inserito");
@@ -100,17 +107,35 @@ public class ServiceDatiUtente {
         if (datiUtente.getProdottoById(idProdotto) == null) {
             throw new IllegalArgumentException("Nessun prodotto trovato tra quelli posseduti.");
         }
+        if (prodottoDTO != null && prodottoDTO.getIdVenditore() != p.getIdVenditore() && prodottoDTO.getIdVenditore() != null) {
+            throw new IllegalArgumentException("Impossibile cambiare l'id del venditore.");
+        }
         if (prodottoDTO == null) {
             datiUtente.getProdotti().remove(p);
             daoProdotto.makeTransient(p);
         } else {
             Prodotto nuovoProdotto = Mapper.map(prodottoDTO, Prodotto.class);
+            if (nuovoProdotto.getIdVenditore() == null) {
+                nuovoProdotto.setIdVenditore(datiUtente.getIdUtente());
+            }
             datiUtente.getProdotti().remove(p);
             datiUtente.getProdotti().add(nuovoProdotto);
             daoProdotto.makeTransient(p);
             daoProdotto.makePersistent(nuovoProdotto);
         }
         daoDatiUTente.makePersistent(datiUtente);
+    }
+
+    public List<ProdottoDTO> visualizzaCatalogo() {
+        List<Prodotto> prodotti = daoProdotto.findAll();
+        List<ProdottoDTO> prodottiDTO = new ArrayList<>();
+        for (Prodotto p : prodotti) {
+            prodottiDTO.add(Mapper.map(p, ProdottoDTO.class));
+        }
+        if (prodottiDTO == null) {
+            throw new IllegalArgumentException("Nessun prodotto nel catalogo.");
+        }
+        return prodottiDTO;
     }
 
 

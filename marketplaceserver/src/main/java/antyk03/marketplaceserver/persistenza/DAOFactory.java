@@ -2,9 +2,7 @@ package antyk03.marketplaceserver.persistenza;
 
 import static antyk03.marketplaceserver.enums.EStrategiaPersistenza.DB_HIBERNATE;
 import antyk03.marketplaceserver.modello.Configurazione;
-import antyk03.marketplaceserver.persistenza.mock.DAODatiUtenteMock;
-import antyk03.marketplaceserver.persistenza.mock.DAOProdottoMock;
-import antyk03.marketplaceserver.persistenza.mock.DAOUtenteMock;
+import antyk03.marketplaceserver.persistenza.mock.*;
 import lombok.Getter;
 
 
@@ -22,6 +20,10 @@ public class DAOFactory {
     private IDAODatiUtente daoDatiUtente;
     @Getter
     private IDAOProdotto daoProdotto;
+    @Getter
+    private IDAOOrdine daoOrdine;
+    @Getter
+    private IDAOProdottoOrdine daoProdottoOrdine;
 
     private DAOFactory() {
         if (Configurazione.getInstance().getStrategiaDb().equals(DB_HIBERNATE)) {
@@ -30,6 +32,8 @@ public class DAOFactory {
             daoUtente = new DAOUtenteMock();
             daoDatiUtente = new DAODatiUtenteMock();
             daoProdotto = new DAOProdottoMock();
+            daoOrdine = new DAOOrdineMock();
+            daoProdottoOrdine = new DAOProdottoOrdineMock();
         }
     }
 }

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProdottoDTO {
 
@@ -14,8 +16,9 @@ public class ProdottoDTO {
     @NotBlank
     private String descrizione;
     @DecimalMin(value = "0.01")
-    private float prezzo;
+    private BigDecimal prezzo;
     @Min(1)
     private int quantita;
+    private Long idVenditore;
 
 }

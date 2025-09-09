@@ -12,11 +12,17 @@ public class RepositoryGenericoMock {
 
     @SuppressWarnings("unchecked")
     public <T> T findById(long id, Class<T> classe) {
+        if (beans.get(classe) == null) {
+            return null;
+        }
         return (T) beans.get(classe).get(id);
     }
 
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll (Class<T> classe) {
+        if (beans.get(classe) == null) {
+            return new ArrayList<>();
+        }
         return new ArrayList<>((Collection<? extends T>) beans.get(classe).values());
     }
 
