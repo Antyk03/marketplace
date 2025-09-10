@@ -60,11 +60,11 @@ public class AutenticationFilter implements ContainerRequestFilter {
             log.debug("Utente verificato: {}", emailUtente);
             SecurityContext originalContext = requestContext.getSecurityContext();
             requestContext.setSecurityContext(new AppSecurityContext(emailUtente, originalContext.isSecure(), "Bearer"));
-            /*Utente utente = daoUtente.findByEmail(emailUtente);
+            Utente utente = daoUtente.findByEmail(emailUtente);
             if (utente == null) {
                 interrompiRichiesta("Utente " + emailUtente + " non trovato", requestContext);
                 return;
-            }*/
+            }
         } catch (Exception ex) {
             log.error("Errore durante la validazione del token {}", ex.getMessage(), ex);
             interrompiRichiesta("Token di autorizzazione non valido", requestContext);

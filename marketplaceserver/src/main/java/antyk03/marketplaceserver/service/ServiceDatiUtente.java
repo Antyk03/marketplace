@@ -1,6 +1,7 @@
 package antyk03.marketplaceserver.service;
 
 import antyk03.marketplaceserver.enums.ERuolo;
+import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.modello.DatiUtente;
 import antyk03.marketplaceserver.modello.Prodotto;
 import antyk03.marketplaceserver.modello.Utente;
@@ -35,6 +36,9 @@ public class ServiceDatiUtente {
         if (datiUtente == null) {
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
         }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
         DatiUtenteDTO datiUtenteDTO = Mapper.map(datiUtente, DatiUtenteDTO.class);
         return datiUtenteDTO;
     }
@@ -49,6 +53,9 @@ public class ServiceDatiUtente {
         if (datiUtente == null) {
             log.info("findByEmail/ Nessun dato utente trovato");
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
         }
         if (prodottoDTO.getIdVenditore() != null && prodottoDTO.getIdVenditore() != datiUtente.getIdUtente()) {
             throw new IllegalArgumentException("Id degli utenti non coincidenti.");
@@ -76,6 +83,9 @@ public class ServiceDatiUtente {
             log.info("getProdotti/ Nessun dato utente trovato");
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
         }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
         if (datiUtente.getRuolo() == ERuolo.USER) {
             log.info("getProdotti/ Semplice utente, non venditore.");
             throw new IllegalArgumentException("Non puoi avere dei prodotti, sei un utente semplice.");
@@ -96,6 +106,9 @@ public class ServiceDatiUtente {
         DatiUtente datiUtente = daoDatiUTente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             throw new IllegalArgumentException("Impossibile trovare dati per utente");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
         }
         if (datiUtente.getRuolo() == ERuolo.USER) {
             throw new IllegalArgumentException("Non hai il permesso per vendere.");

@@ -25,6 +25,8 @@ dependencies {
     implementation 'org.glassfish.jersey.ext.cdi:jersey-cdi1x:3.1.2'
     implementation 'org.glassfish.jersey.ext.cdi:jersey-cdi1x-servlet:3.1.2'
 
+    // Database H2 in memoria
+    runtimeOnly 'com.h2database:h2:2.2.224'
 
     // Jakarta EE
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0' // JAX-RS API
@@ -85,6 +87,18 @@ testing {
         }
     }
 }
+
+tasks.register('runH2', JavaExec) {
+    group = 'H2'
+    description = 'Avvia H2 console'
+
+    // usa il classpath del progetto per includere H2
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('org.h2.tools.Server')  // H2 Server main class
+    args = ['-web', '-webAllowOthers', '-tcp', '-tcpAllowOthers', '-browser', '-tcpPort', '9092', '-webPort', '8082']
+}
+
+
 
 apply from: 'tomcat.gradle' // Applicazione delle configurazioni specifiche per Tomcat
 

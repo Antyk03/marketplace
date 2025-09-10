@@ -17,10 +17,10 @@ public class DAOUtilHibernate {
     private static final SessionFactory sessionFactory;
     private static final ServiceRegistry serviceRegistry;
 
+
     static {
         try {
-            Configuration configuration = new Configuration();
-            configuration.configure();
+            Configuration configuration = new Configuration().configure();
             serviceRegistry = new StandardServiceRegistryBuilder().configure().build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
         } catch (Throwable ex) {

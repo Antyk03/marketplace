@@ -3,15 +3,18 @@ import java.util.Locale
 // Usare una closure lazy per leggere la proprietà senza rompere la configuration cache
 def tomcatDirProp = project.findProperty('tomcatDir') ?: ''
 
-task checkTomcatProperties {
-    // fase di configurazione sicura per la configuration cache
+// --- Controllo proprietà Tomcat ---
+tasks.register("checkTomcatProperties") {
+    group = "Tomcat"
+    description = "Controlla che le proprietà necessarie siano impostate"
+
     doFirst {
         def errori = ""
-        if (tomcatDirProp.toString().blank) {
+        if (tomcatDirProp.toString().isBlank()) {
             errori += "tomcatDir "
         }
 
-        if (!errori.blank) {
+        if (!errori.isBlank()) {
             throw new GradleException("""
             ################################################################
             #                      ERRORE                                  #
@@ -26,11 +29,15 @@ task checkTomcatProperties {
     }
 }
 
+// --- Rilevamento OS ---
 def osName = System.getProperty('os.name').toLowerCase(Locale.ROOT)
 
-task startTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
+// --- Start Tomcat ---
+tasks.register("startTomcat", Exec) {
     group = "Tomcat"
     description = "Avvia il server applicativo locale."
+    dependsOn "checkTomcatProperties"
+
     workingDir = file("${tomcatDirProp}/bin")
 
     doFirst {
@@ -44,9 +51,12 @@ task startTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
     }
 }
 
-task stopTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
+// --- Stop Tomcat ---
+tasks.register("stopTomcat", Exec) {
     group = "Tomcat"
     description = "Ferma il server applicativo"
+    dependsOn "checkTomcatProperties"
+
     workingDir = file("${tomcatDirProp}/bin")
 
     doFirst {
@@ -64,19 +74,26 @@ task stopTomcat(type: Exec, dependsOn: [checkTomcatProperties]) {
     }
 }
 
-task deploy(type: Copy, dependsOn: [checkTomcatProperties, war]) {
+// --- Deploy WAR ---
+tasks.register("deploy", Copy) {
     group = "Tomcat"
     description = "Genera e installa il war nella cartella webapp di Tomcat"
-    from war.archiveFile
+    dependsOn "checkTomcatProperties", "war"
+
+    from tasks.named("war").get().archiveFile
     into "${tomcatDirProp}/webapps"
 }
 
-task undeploy(type: Delete, dependsOn: [checkTomcatProperties, war]) {
+// --- Undeploy WAR ---
+tasks.register("undeploy", Delete) {
     group = "Tomcat"
     description = "Elimina il file war nella cartella webapp di Tomcat"
-    delete "${tomcatDirProp}/webapps/${war.archiveFileName.get()}"
+    dependsOn "checkTomcatProperties", "war"
+
+    delete "${tomcatDirProp}/webapps/${tasks.named("war").get().archiveFileName.get()}"
 }
 
-war {
-    archiveFileName = "${project.name}.war"
+// --- Configurazione WAR ---
+tasks.named("war") {
+    archiveFileName.set("${project.name}.war")
 }

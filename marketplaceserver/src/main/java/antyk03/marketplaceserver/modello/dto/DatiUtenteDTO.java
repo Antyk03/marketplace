@@ -1,6 +1,7 @@
 package antyk03.marketplaceserver.modello.dto;
 
 import antyk03.marketplaceserver.enums.ERuolo;
+import antyk03.marketplaceserver.enums.EStatoUtente;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,6 +20,7 @@ public class DatiUtenteDTO {
     private String email;
     @NotBlank
     private ERuolo ruolo;
+    private EStatoUtente statoUtente;
     @NotBlank
     private Long idUtente;
 

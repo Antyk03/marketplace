@@ -2,6 +2,7 @@ package antyk03.marketplaceserver.service;
 
 
 import antyk03.marketplaceserver.enums.ERuolo;
+import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.enums.EStatus;
 import antyk03.marketplaceserver.modello.*;
 import antyk03.marketplaceserver.modello.dto.OrdineDTO;
@@ -38,6 +39,9 @@ public class ServiceOrdine {
         DatiUtente datiUtente = daoDatiUtente.findByIdUtente(idUtente);
         if (datiUtente == null) {
             throw new IllegalArgumentException("Nessun dato trovato per l'utente");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
         }
         if (datiUtente.getRuolo() == ERuolo.VENDOR) {
             throw new IllegalArgumentException("Non hai il permesso di acquistare o aggiungere al carrello dei prodotti.");
@@ -114,6 +118,36 @@ public class ServiceOrdine {
         carrello.setStatus(EStatus.PAID);
         daoOrdine.makePersistent(carrello);
         return ordineDTO;
+    }
+
+    public List<OrdineDTO> visualizzaStorico (String email) {
+        Utente utente = daoUtente.findByEmail(email);
+        if (utente == null) {
+            throw new IllegalArgumentException("Utente non autorizzato.");
+        }
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
+        if (datiUtente == null) {
+            throw new IllegalArgumentException("Nessun dato registrato sull'utente");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
+        if (datiUtente.getRuolo() == ERuolo.VENDOR) {
+            throw new IllegalArgumentException("Non puoi vedere lo storico, non hai il permesso");
+        }
+        List<OrdineDTO> ordiniDTO = new ArrayList<>();
+        List<Ordine> ordiniUtente = daoOrdine.findByIdUtente(utente.getId());
+        for (Ordine o: ordiniUtente) {
+            List<ProdottoOrdineDTO> listaProdotti = new ArrayList<>();
+            for (ProdottoOrdine po: o.getProdotti()) {
+                ProdottoOrdineDTO poDTO = Mapper.map(po, ProdottoOrdineDTO.class);
+                listaProdotti.add(poDTO);
+            }
+            OrdineDTO ordineDTO = Mapper.map(o, OrdineDTO.class);
+            ordineDTO.setProdottiOrdineDTO(listaProdotti);
+            ordiniDTO.add(ordineDTO);
+        }
+        return ordiniDTO;
     }
 
 }
