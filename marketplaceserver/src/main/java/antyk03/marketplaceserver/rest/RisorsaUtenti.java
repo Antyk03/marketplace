@@ -5,6 +5,7 @@ import antyk03.marketplaceserver.modello.DatiUtente;
 import antyk03.marketplaceserver.modello.Utente;
 import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
+import antyk03.marketplaceserver.modello.dto.RegistrazioneUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.UtenteDTO;
 import antyk03.marketplaceserver.service.ServiceUtenti;
 import jakarta.annotation.security.PermitAll;
@@ -83,5 +84,25 @@ public class RisorsaUtenti {
         serviceUtenti.rimuoviProdotto(idProdotto, email);
     }
 
+    @PermitAll
+    @POST
+    @Path("/utenti/registra")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String registraUtente(RegistrazioneUtenteDTO registrazioneUtenteDTO) {
+        UtenteDTO utenteDTO = registrazioneUtenteDTO.getUtenteDTO();
+        DatiUtenteDTO datiUtenteDTO = registrazioneUtenteDTO.getDatiUtenteDTO();
+        if (!utenteDTO.getEmail().equalsIgnoreCase(datiUtenteDTO.getEmail())) {
+            throw new IllegalArgumentException("Email non coincidono.");
+        }
+        return serviceUtenti.registraUtente(utenteDTO, datiUtenteDTO);
+    }
 
+    @POST
+    @Path("/utenti/elimina")
+    @Produces(MediaType.TEXT_PLAIN)
+    public void eliminaUtente() {
+        String email = securityContext.getUserPrincipal().getName();
+        serviceUtenti.eliminaUtente(email);
+    }
 }

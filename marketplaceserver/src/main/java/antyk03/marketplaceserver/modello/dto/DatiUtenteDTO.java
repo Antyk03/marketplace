@@ -10,7 +10,6 @@ import lombok.Data;
 @Data
 public class DatiUtenteDTO {
 
-    @NotBlank
     private Long id;
     @NotBlank
     @Size(min = 4, max = 20)
@@ -21,7 +20,6 @@ public class DatiUtenteDTO {
     @NotBlank
     private ERuolo ruolo;
     private EStatoUtente statoUtente;
-    @NotBlank
     private Long idUtente;
 
 

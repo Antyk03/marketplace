@@ -140,4 +140,47 @@ public class ServiceUtenti {
         daoDatiUtente.makePersistent(venditore);
         return;
     }
+
+    public String registraUtente(UtenteDTO utenteDTO, DatiUtenteDTO datiUtenteDTO) {
+        if (daoUtente.findByEmail(utenteDTO.getEmail()) != null) {
+            throw new IllegalArgumentException("Email già registrata.");
+        }
+        if (datiUtenteDTO.getIdUtente() != null || datiUtenteDTO.getId() != null) {
+            throw new IllegalArgumentException("L'id deve essere nullo.");
+        }
+        DatiUtente datiUtente = Mapper.map(datiUtenteDTO, DatiUtente.class);
+        if (datiUtente.getStatoUtente() == null) {
+            datiUtente.setStatoUtente(EStatoUtente.ATTIVO);
+        }
+        if (datiUtenteDTO.getRuolo().equals(ERuolo.ADMIN)) {
+            throw new IllegalArgumentException("Ruolo non concesso.");
+        }
+        Utente utente = new Utente(utenteDTO.getEmail(), utenteDTO.getPassword());
+        daoUtente.makePersistent(utente);
+        log.info("Utente: " + utenteDTO.getEmail() + " Username: " + datiUtenteDTO.getUsername());
+        datiUtente.setIdUtente(utente.getId());
+        daoDatiUtente.makePersistent(datiUtente);
+        return utente.getId().toString();
+    }
+
+    public void eliminaUtente(String email) {
+        Utente utente = daoUtente.findByEmail(email);
+        if (utente == null) {
+            throw new IllegalArgumentException("Errore durante l'autenticazione.");
+        }
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
+        if (datiUtente == null) {
+            daoUtente.makeTransient(utente);
+            return;
+        }
+        if (datiUtente.getRuolo().equals(ERuolo.USER)) {
+            daoDatiUtente.makeTransient(datiUtente);
+            daoUtente.makeTransient(utente);
+        }
+        for (Prodotto p: datiUtente.getProdotti()) {
+            daoProdotto.makeTransient(p);
+        }
+        daoDatiUtente.makeTransient(datiUtente);
+        daoUtente.makeTransient(utente);
+    }
 }
