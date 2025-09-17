@@ -1,0 +1,18 @@
+
+<div class="card pannello-login">
+  <h3>Login</h3>
+  <form [formGroup]="formGroup" (submit)="onSubmit()">
+    <div class="mt-2">
+      <label for="email" class="form-label">Email</label>
+      <input [formControl] = "emailFormControl" id = "email" placeholder="es@mail.it" type="email" class="form-control"/>
+      <div *ngIf="emailFormControl.invalid && emailFormControl.dirty" class="form-text text-danger">Il campo deve essere valido</div>
+    </div>
+    <div class="mt-2">
+      <label for="password" class="form-label">Password</label>
+      <input [formControl] ="passwordFormControl" type="password" class="form-control" id="password" placeholder="password"/>
+      <div *ngIf="passwordFormControl.invalid && passwordFormControl.dirty" class="form-text text-danger">Il campo deve essere valido</div>
+    </div>
+    <button class="mt-4 form-control btn-primary btn" type="submit" [disabled]="formGroup.invalid">Login</button>
+  </form>
+
+</div>

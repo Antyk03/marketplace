@@ -1,0 +1,14 @@
+<div class="prodotto-card">
+  <div class="">
+  <h1>Catalogo Prodotti</h1>
+  <div class="prodotto-card-container">
+    <div *ngFor="let prodotto of prodotti" class="prodotto-card">
+      <div class="product-image">
+        <img src="assets/images/placeholder.png" alt="{{prodotto.nome}}">
+        </div>
+        <div class="product-name">{{ prodotto.nome }}</div>
+        <div class="product-price">€ {{ prodotto.prezzo.toFixed(2) }}</div>
+      </div>
+    </div>
+  </div>
+</div>

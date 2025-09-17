@@ -26,6 +26,9 @@ public class CorsFilter implements ContainerResponseFilter {
         if (origin == null) {
             return;
         }
+        if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+            responseContext.setStatus(200); // garantisce che il preflight risponda OK
+        }
         if (ALLOWED_ORIGINS.contains(origin)) {
             log.debug("Accetto l'origin {}", origin);
             responseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
@@ -34,5 +37,7 @@ public class CorsFilter implements ContainerResponseFilter {
             responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
         }
     }
+
+
 
 }

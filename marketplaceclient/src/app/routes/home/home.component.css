@@ -1,0 +1,160 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 5px;
+}
+
+/* Barra intestazione */
+.divHeaderContainer {
+  display: flex;
+  width: 100%;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  overflow: hidden;
+  height: 40px;
+}
+
+.divHeaderUtente, .divHeaderVenditore {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  font-size: larger;
+}
+
+.divHeaderUtente { background-color: rgba(0, 123, 255, 0.7); }
+.divHeaderVenditore { background-color: rgba(40, 167, 69, 0.7); }
+
+/* Contenuti affiancati o singoli sotto la barra */
+.divContentRow {
+  display: flex;
+  width: 100%;
+  border-left: 1px solid rgba(200,200,200,0.5);
+  border-right: 1px solid rgba(200,200,200,0.5);
+  border-bottom: 1px solid rgba(200,200,200,0.5);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+/* Gradiente singolo utente e venditore */
+.gradiente-utente {
+  background: linear-gradient(#99ccff); /* blu scuro -> chiaro */
+}
+.gradiente-venditore {
+  background: linear-gradient(#99e699); /* verde scuro -> chiaro */
+}
+
+/* Parte interna dei div */
+.divInterno {
+  flex: 1;
+  padding: 15px;
+  background-color: transparent;
+  border: 1px solid rgba(200,200,200,0.5);
+  border-top: none;
+  margin-top: 0;
+}
+
+.divInterno.divUtente {
+  border-bottom-left-radius: 12px;
+  border-right: 1px solid rgba(200,200,200,0.5);
+}
+
+.divInterno.divVenditore {
+  border-bottom-right-radius: 12px;
+  border-left: 1px solid rgba(200,200,200,0.5);
+}
+
+/* Caso header unico singolo div */
+.divHeader.full {
+  flex: 1;
+  text-align: center;
+}
+/* Container per la griglia dei prodotti */
+/* Container dei prodotti in griglia */
+.prodotto-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+/* Card prodotto */
+.prodotto-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #fff;
+}
+
+.product-image img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-name {
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+.product-price {
+  color: #e60000;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.btn-add {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-add:hover {
+  background-color: #0056b3;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 8px;
+}
+
+.btn-edit {
+  flex: 1;
+  background-color: #ffc107; /* giallo */
+  color: #212529;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-edit:hover {
+  background-color: #e0a800;
+}
+
+.btn-delete {
+  flex: 1;
+  background-color: #dc3545; /* rosso */
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-delete:hover {
+  background-color: #b02a37;
+}

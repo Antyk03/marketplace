@@ -1,0 +1,60 @@
+<div *ngIf="!isBloccato" class="card content">
+  <div class="container">
+
+    <!-- Barra intestazione dinamica -->
+    <div class="divHeaderContainer" *ngIf="ruoloUtente === ERuolo.ADMIN">
+      <div class="divHeaderUtente">Catalogo dei prodotti in vendita</div>
+      <div class="divHeaderVenditore">Catalogo dei tuoi prodotti in vendita</div>
+    </div>
+    <div class="divHeaderContainer" *ngIf="ruoloUtente === ERuolo.USER">
+      <div class="divHeaderUtente full">Prodotti</div>
+    </div>
+    <div class="divHeaderContainer" *ngIf="ruoloUtente === ERuolo.VENDOR">
+      <div class="divHeaderVenditore full">Catalogo dei tuoi prodotti in vendita</div>
+    </div>
+
+    <!-- Contenuti affiancati o singoli -->
+    <div class="divContentRow">
+
+      <!-- Div Utente -->
+      <div *ngIf="ruoloUtente === ERuolo.USER || ruoloUtente === ERuolo.ADMIN"
+           class="divInterno divUtente gradiente-utente">
+        <div class="prodotto-card-container">
+          <div *ngFor="let prodotto of prodotti" class="prodotto-card">
+            <div class="product-image">
+              <img src="assets/images/placeholder.png" alt="{{prodotto.nome}}">
+            </div>
+            <div class="product-name">{{ prodotto.nome }}</div>
+            <div class="product-price">€ {{ prodotto.prezzo.toFixed(2) }}</div>
+            <button class="btn-add">Aggiungi al carrello</button>
+          </div>
+        </div>
+      </div>
+      <!-- Div Venditore -->
+      <div *ngIf="ruoloUtente === ERuolo.VENDOR || ruoloUtente === ERuolo.ADMIN"
+          class="divInterno divVenditore gradiente-venditore">
+        <div class="text-center my-3">
+          <button class="btn btn-primary btn-lg">Aggiungi un prodotto</button>
+        </div>
+        <div class="prodotto-card-container">
+          <div *ngFor="let prodotto of prodottiUtente" class="prodotto-card">
+            <div class="product-image">
+              <img src="assets/images/placeholder.png" alt="{{prodotto.nome}}">
+            </div>
+            <div class="product-name">{{ prodotto.nome }}</div>
+            <div class="product-price">€ {{ prodotto.prezzo.toFixed(2) }}</div>
+
+            <!-- Pulsanti gestione prodotto -->
+            <div class="product-actions">
+              <button class="btn-edit" (click)="onModificaProdotto(prodotto)">Modifica</button>
+              <button class="btn-delete" (click)="onEliminaProdotto(prodotto)">Elimina</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
