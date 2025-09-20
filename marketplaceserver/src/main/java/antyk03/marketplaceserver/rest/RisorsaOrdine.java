@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 
 
@@ -32,6 +33,14 @@ public class RisorsaOrdine {
 
     @Context
     SecurityContext securityContext;
+
+    @GET
+    @Path("/visualizza")
+    @Produces(MediaType.APPLICATION_JSON)
+    public OrdineDTO visualizzaCarrello() {
+        String email = securityContext.getUserPrincipal().getName();
+        return serviceOrdine.visualizzaCarrello(email);
+    }
 
     //Utente aggiunge prodotto al carrello, un utente USER seleziona un prodotto e lo aggiunge al carrello (ORDINE STATUS.DRAFT)
     @POST

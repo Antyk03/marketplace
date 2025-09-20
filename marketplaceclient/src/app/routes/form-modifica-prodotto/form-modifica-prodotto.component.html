@@ -1,0 +1,23 @@
+<div>
+  <h3>Nuovo Prodotto:</h3>
+  <form [formGroup]="formModifica" (submit)="onSubmit()">
+    <div>
+      <label for="nome" class="form-label">Nome</label>
+      <input [formControl]="nomeFormControl" id="nome" class="form-control"/>
+      <div *ngIf="nomeFormControl.dirty && nomeFormControl.invalid" class="form-text text-danger">Il valore deve essere valido.</div>
+      <label for="descrizione" class="form-label">Descrizione</label>
+      <input [formControl]="descrizioneFormControl" id="descrizione" class="form-control"/>
+      <div *ngIf="descrizioneFormControl.dirty && descrizioneFormControl.invalid" class="form-text text-danger">Il valore deve essere valido.</div>
+      <label for="prezzo" class="form-label">Prezzo</label>
+      <input [formControl]="prezzoFormControl" id="prezzo" class="form-control"/>
+      <div *ngIf="prezzoFormControl.dirty && prezzoFormControl.invalid" class="form-text text-danger">Il valore deve essere valido.</div>
+      <label for="quantita" class="form-label">Quantità</label>
+      <input [formControl]="quantitaFormControl" id="quantita" class="form-control"/>
+      <div *ngIf="quantitaFormControl.dirty && quantitaFormControl.invalid" class="form-text text-danger">Il valore deve essere valido.</div>
+    </div>
+    <div>
+      <button class="btn btn-success" type="submit" [disabled]="formModifica.invalid">Modifica</button>
+      <button class="btn btn-danger" type="reset">Annulla</button>
+    </div>
+  </form>
+</div>

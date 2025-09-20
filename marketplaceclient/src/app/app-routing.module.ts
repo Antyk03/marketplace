@@ -4,13 +4,20 @@ import { PaginaNonTrovataComponent } from './components/pagina-non-trovata/pagin
 import { LoginComponent } from './routes/login/login.component';
 import { HomeComponent } from './routes/home/home.component';
 import { AuthGuard } from './guard/auth.guard';
-import { CatalogoComponent } from './components/catalogo/catalogo.component';
+import { CatalogoComponent } from './routes/catalogo/catalogo.component';
+import { FormAggiungiProdottoComponent } from './routes/form-aggiungi-prodotto/form-aggiungi-prodotto.component';
+import { FormModificaProdottoComponent } from './routes/form-modifica-prodotto/form-modifica-prodotto.component';
+import { prodottiResolver} from './resolver/prodotti.resolver';
+import { CarrelloComponent } from './routes/carrello/carrello.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full'},
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard] },
   { path: 'catalogo', component: CatalogoComponent},
+  { path: 'aggiungi-prodotto', component: FormAggiungiProdottoComponent, canActivate:[AuthGuard] },
+  { path: 'home/prodotti/:idProdotto', component: FormModificaProdottoComponent, canActivate:[AuthGuard], resolve: {prod: prodottiResolver}},
+  { path: 'carrello', component: CarrelloComponent, canActivate:[AuthGuard]},
   { path: '**', component: PaginaNonTrovataComponent}
 ];
 

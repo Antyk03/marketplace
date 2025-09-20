@@ -30,6 +30,44 @@ public class ServiceOrdine {
     private IDAOProdottoOrdine daoProdottoOrdine = DAOFactory.getInstance().getDaoProdottoOrdine();
     private IDAOOrdine daoOrdine = DAOFactory.getInstance().getDaoOrdine();
 
+    public OrdineDTO visualizzaCarrello(String email) {
+        Utente utente = daoUtente.findByEmail(email);
+        if (utente==null) {
+            throw new IllegalArgumentException("Utente non autenticato");
+        }
+        Long idUtente = utente.getId();
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(idUtente);
+        if (datiUtente == null) {
+            throw new IllegalArgumentException("Nessun informazione trovata.");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
+        if (datiUtente.getRuolo() == ERuolo.VENDOR) {
+            throw new IllegalArgumentException("Utente VENDOR non può avere un carrello");
+        }
+        Ordine carrello = daoOrdine.findCarrelloUtente(idUtente);
+        OrdineDTO carrelloDTO = new OrdineDTO();
+        if (carrello == null) {
+            return carrelloDTO;
+        }
+        List<ProdottoOrdineDTO> prodottiDTO = new ArrayList<>();
+        for (ProdottoOrdine po: carrello.getProdotti()) {
+            po.calcolaTotale();
+            ProdottoOrdineDTO poDTO = Mapper.map(po, ProdottoOrdineDTO.class);
+            prodottiDTO.add(poDTO);
+        }
+        carrelloDTO.setId(carrello.getId());
+        carrelloDTO.setStatus(carrello.getStatus());
+        carrelloDTO.setValuta(carrello.getValuta());
+        carrello.calcolaTotale();
+        log.info(String.valueOf(carrello.getTotale()));
+        carrelloDTO.setTotale(carrello.getTotale());
+        carrelloDTO.setDataCreazione(carrello.getDataCreazione());
+        carrelloDTO.setProdottiOrdineDTO(prodottiDTO);
+        return carrelloDTO;
+    }
+
     public Long aggiungiAlCarrello(ProdottoOrdineDTO prodottoOrdineDTO, String email) {
         Utente utente = daoUtente.findByEmail(email);
         if (utente == null) {

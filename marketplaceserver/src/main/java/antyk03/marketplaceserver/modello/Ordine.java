@@ -4,6 +4,7 @@ import antyk03.marketplaceserver.enums.EStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.List;
 @Table (name = "ordini")
 @Data
 @NoArgsConstructor
+@Slf4j
 public class Ordine {
 
     @Id
@@ -37,11 +39,12 @@ public class Ordine {
     }
 
     public void calcolaTotale() {
-        BigDecimal tot = BigDecimal.valueOf(0);
+        double totale = 0;
         for (ProdottoOrdine po: prodotti) {
-            tot.add(po.getTotale());
+            totale +=  po.getTotale().doubleValue();
+            log.info(String.valueOf(totale));
         }
-        this.totale = tot;
+        this.totale = BigDecimal.valueOf(totale);
     }
 
     public ProdottoOrdine cercaProdottoOrdine(Long idProdotto) {

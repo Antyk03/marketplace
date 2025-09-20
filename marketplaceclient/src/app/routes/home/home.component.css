@@ -103,6 +103,12 @@
   margin: 10px 0 5px;
 }
 
+.product-amount {
+  color: #000000;
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
 .product-price {
   color: #e60000;
   font-weight: bold;

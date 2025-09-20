@@ -24,7 +24,7 @@ export class DaoUtenteService {
         map((tokenString: string) => {
           return new Utente(email, tokenString); // ora TS sa che tokenString è stringa
         }),
-        tap(utente => console.log('Ricevuto utente con token', utente))
+        //tap(utente => console.log('Ricevuto utente con token', utente))
       )
   );
   }
@@ -41,7 +41,7 @@ export class DaoUtenteService {
     if (!utente) {
       throw new Error('Credenziali scorrette');
     }
-    let utenteLogin = new Utente(utente.email, 'token-' + email);
+    let utenteLogin = new Utente(utente.email, 'tokenMarketplace-' + email);
     utenteLogin.id = utente.id;
     return utenteLogin;
   }

@@ -1,0 +1,65 @@
+<div class="container-carrello">
+  <div class="col-carrello">
+    <h3>Carrello</h3>
+
+    <ng-container *ngIf="carrello && carrello.prodottiOrdineDTO.length > 0; else carrelloVuoto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID Prodotto</th>
+            <th>Quantità</th>
+            <th>Prezzo unitario</th>
+            <th>Totale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of carrello.prodottiOrdineDTO">
+            <td>{{ item.idProdotto }}</td>
+            <td>{{ item.quantita }}</td>
+            <td>{{ item.prezzoUnitario | currency:'EUR' }}</td>
+            <td>{{ item.totale | currency:'EUR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totale-carrello">
+        <strong>Totale ordine:</strong> {{ carrello.totale | currency:'EUR' }}
+      </div>
+
+      <button class="btn-acquista" (click)="onClickAcquista()">Procedi all'acquisto</button>
+    </ng-container>
+
+    <ng-template #carrelloVuoto>
+      <p>Il carrello è vuoto.</p>
+    </ng-template>
+  </div>
+
+  <div class="col-storico">
+    <h3>Storico ordini</h3>
+
+    <ng-container *ngIf="storico && storico.length > 0; else storicoVuoto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID Ordine</th>
+            <th>Data</th>
+            <th>Totale</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ordine of storico">
+            <td>{{ ordine.id }}</td>
+            <td>{{ ordine.dataCreazione }}</td>
+            <td>{{ ordine.totale | currency:'EUR' }}</td>
+            <td>{{ ordine.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <ng-template #storicoVuoto>
+      <p>Nessun ordine effettuato.</p>
+    </ng-template>
+  </div>
+</div>

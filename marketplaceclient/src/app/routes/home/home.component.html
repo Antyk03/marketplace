@@ -26,7 +26,16 @@
             </div>
             <div class="product-name">{{ prodotto.nome }}</div>
             <div class="product-price">€ {{ prodotto.prezzo.toFixed(2) }}</div>
-            <button class="btn-add">Aggiungi al carrello</button>
+            <label for="qta-{{ prodotto.id }}">Quantità:</label>
+            <select
+              id="qta-{{ prodotto.id }}"
+              [(ngModel)]="quantitaSelezionata[prodotto.id!]">
+              <option *ngFor="let n of [].constructor(quantitaMassima(prodotto.quantita!)); let i = index" [value]="i+1">
+                {{ i+1 }}
+              </option>
+            </select>
+            <span>(Disponibili: {{ prodotto.quantita }})</span>
+            <button class="btn-add" (click)="onAggiungiAlCarrello(prodotto)">Aggiungi al carrello</button>
           </div>
         </div>
       </div>
@@ -34,7 +43,7 @@
       <div *ngIf="ruoloUtente === ERuolo.VENDOR || ruoloUtente === ERuolo.ADMIN"
           class="divInterno divVenditore gradiente-venditore">
         <div class="text-center my-3">
-          <button class="btn btn-primary btn-lg">Aggiungi un prodotto</button>
+          <button class="btn btn-primary btn-lg" [routerLink]="['/aggiungi-prodotto']">Aggiungi un prodotto</button>
         </div>
         <div class="prodotto-card-container">
           <div *ngFor="let prodotto of prodottiUtente" class="prodotto-card">
@@ -43,10 +52,10 @@
             </div>
             <div class="product-name">{{ prodotto.nome }}</div>
             <div class="product-price">€ {{ prodotto.prezzo.toFixed(2) }}</div>
-
+            <div class="product-amount">Quantità: {{ prodotto.quantita}}</div>
             <!-- Pulsanti gestione prodotto -->
             <div class="product-actions">
-              <button class="btn-edit" (click)="onModificaProdotto(prodotto)">Modifica</button>
+              <button class="btn-edit" [routerLink]="'prodotti/' + prodotto.id +''">Modifica</button>
               <button class="btn-delete" (click)="onEliminaProdotto(prodotto)">Elimina</button>
             </div>
           </div>

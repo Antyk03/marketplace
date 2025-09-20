@@ -19,7 +19,10 @@ import { AuthTokenInterceptor } from './service/interceptors/auth-token.intercep
 import { ErrorInterceptor } from './service/interceptors/error.interceptor';
 import { HomeComponent } from './routes/home/home.component';
 import { environment } from '../environments/environment';
-import { CatalogoComponent } from './components/catalogo/catalogo.component';
+import { CatalogoComponent } from './routes/catalogo/catalogo.component';
+import { FormAggiungiProdottoComponent } from './routes/form-aggiungi-prodotto/form-aggiungi-prodotto.component';
+import { FormModificaProdottoComponent } from './routes/form-modifica-prodotto/form-modifica-prodotto.component';
+import { CarrelloComponent } from './routes/carrello/carrello.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +34,10 @@ import { CatalogoComponent } from './components/catalogo/catalogo.component';
     SnackbarComponent,
     LoginComponent,
     HomeComponent,
-    CatalogoComponent
+    CatalogoComponent,
+    FormAggiungiProdottoComponent,
+    FormModificaProdottoComponent,
+    CarrelloComponent
   ],
   imports: [
     BrowserModule,
