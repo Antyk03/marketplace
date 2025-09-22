@@ -23,6 +23,9 @@ import { CatalogoComponent } from './routes/catalogo/catalogo.component';
 import { FormAggiungiProdottoComponent } from './routes/form-aggiungi-prodotto/form-aggiungi-prodotto.component';
 import { FormModificaProdottoComponent } from './routes/form-modifica-prodotto/form-modifica-prodotto.component';
 import { CarrelloComponent } from './routes/carrello/carrello.component';
+import { AdminComponent } from './routes/admin/admin.component';
+import { RegistrazioneComponent } from './routes/registrazione/registrazione.component';
+import { ModalConfermaComponent } from './components/modal-conferma/modal-conferma.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +40,10 @@ import { CarrelloComponent } from './routes/carrello/carrello.component';
     CatalogoComponent,
     FormAggiungiProdottoComponent,
     FormModificaProdottoComponent,
-    CarrelloComponent
+    CarrelloComponent,
+    AdminComponent,
+    RegistrazioneComponent,
+    ModalConfermaComponent
   ],
   imports: [
     BrowserModule,

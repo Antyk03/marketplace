@@ -1,0 +1,83 @@
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.table-container {
+  background: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Contenitore scrollabile per mobile */
+.table-responsive {
+  overflow-x: auto;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 100%;
+}
+
+thead {
+  background: #f4f4f4;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background: #fafafa;
+}
+
+/* Bottone compatto */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 12px;
+}
+
+/* Bottoni */
+.btn-block {
+  background: #ff9800;
+  color: white;
+  border-radius: 4px;
+}
+
+.btn-block:hover {
+  background: #e68900;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+  border-radius: 4px;
+}
+
+.btn-delete:hover {
+  background: #d32f2f;
+}
+
+/* Nascondi colonne solo su mobile */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none;
+  }
+
+  th, td {
+    padding: 0.25rem 0.5rem;
+  }
+}

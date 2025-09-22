@@ -105,4 +105,5 @@ public class RisorsaUtenti {
         String email = securityContext.getUserPrincipal().getName();
         serviceUtenti.eliminaUtente(email);
     }
+
 }

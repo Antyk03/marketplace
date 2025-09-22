@@ -1,0 +1,36 @@
+<div class="register-container">
+  <!-- Solo UNA card: non usare 'card' di bootstrap insieme a register-card -->
+  <div class="register-card">
+    <h3 class="title">Registrazione</h3>
+
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input [formControl]="usernameFormControl" id="username" type="text" placeholder="Inserisci username" class="input"/>
+        <div *ngIf="usernameFormControl.invalid && usernameFormControl.dirty" class="error">Il campo Username è obbligatorio</div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input [formControl]="emailFormControl" id="email" type="email" placeholder="es@mail.it" class="input"/>
+        <div *ngIf="emailFormControl.invalid && emailFormControl.dirty" class="error">Inserisci un'email valida</div>
+      </div>
+
+      <div class="field">
+        <label for="ruolo">Ruolo</label>
+        <select [formControl]="ruoloFormControl" id="ruolo" class="input">
+          <option *ngFor="let ruolo of ruoliDisponibili" [value]="ruolo">{{ ruolo }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input [formControl]="passwordFormControl" id="password" type="password" placeholder="Password" class="input"/>
+        <div *ngIf="passwordFormControl.invalid && passwordFormControl.dirty" class="error">La password è obbligatoria (minimo 6 caratteri)</div>
+      </div>
+
+      <button class="btn-submit" type="submit" [disabled]="formGroup.invalid">Registrati</button>
+    </form>
+  </div>
+</div>

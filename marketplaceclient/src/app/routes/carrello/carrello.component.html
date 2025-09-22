@@ -10,6 +10,7 @@
             <th>Quantità</th>
             <th>Prezzo unitario</th>
             <th>Totale</th>
+            <th>Azioni</th>
           </tr>
         </thead>
         <tbody>
@@ -18,6 +19,11 @@
             <td>{{ item.quantita }}</td>
             <td>{{ item.prezzoUnitario | currency:'EUR' }}</td>
             <td>{{ item.totale | currency:'EUR' }}</td>
+            <td>
+              <button class="btn-rimuovi" (click)="onClickRimuovi(item.idProdotto)">
+                Rimuovi
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -26,7 +32,10 @@
         <strong>Totale ordine:</strong> {{ carrello.totale | currency:'EUR' }}
       </div>
 
-      <button class="btn-acquista" (click)="onClickAcquista()">Procedi all'acquisto</button>
+      <div class="azioni-carrello">
+        <button class="btn-svuota" (click)="onClickSvuota()">Svuota carrello</button>
+        <button class="btn-acquista" (click)="onClickAcquista()">Procedi all'acquisto</button>
+      </div>
     </ng-container>
 
     <ng-template #carrelloVuoto>

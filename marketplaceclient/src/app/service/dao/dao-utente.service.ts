@@ -3,7 +3,9 @@ import { Injectable } from "@angular/core";
 import { ModelloService } from "../modello.service";
 import { Utente } from "../../model/utente";
 import { environment } from "../../../environments/environment";
-import { lastValueFrom, map, tap } from "rxjs";
+import { last, lastValueFrom, map, tap } from "rxjs";
+import { RegistrazioneUtente } from "../../model/registrazione_utente";
+import { Prodotto } from "../../model/prodotto";
 
 @Injectable({
   providedIn: 'root'
@@ -45,5 +47,34 @@ export class DaoUtenteService {
     utenteLogin.id = utente.id;
     return utenteLogin;
   }
+
+
+  public bloccaUtente(idUtente: number): Promise<void> {
+    const path = environment.backendUrl + 'admin/'+idUtente+"/blocca";
+    console.log("PATH: " + path);
+    const obs = this.httpClient.post<void>(path, idUtente);
+    return lastValueFrom(obs);
+  }
+
+  public registraUtente(registrazioneUtente:RegistrazioneUtente): Promise<void> {
+    const path = environment.backendUrl + 'utenti/registra';
+    console.log("PATH: " + path);
+    const obs = this.httpClient.post<void>(path, registrazioneUtente);
+    return lastValueFrom(obs);
+  }
+
+  public eliminaAccount(): Promise<void> {
+    const path = environment.backendUrl + 'utenti/elimina';
+    console.log("PAHT: " + path);
+    const obs = this.httpClient.post<void>(path, null);
+    return lastValueFrom(obs);
+  }
+
+  public getProdotti(): Promise<Prodotto[]> {
+      const path = environment.backendUrl + 'admin/prodotti';
+      console.log("PAth: " + path );
+      const obs = this.httpClient.get<Prodotto[]>(path);
+      return lastValueFrom(obs);
+    }
 
 }

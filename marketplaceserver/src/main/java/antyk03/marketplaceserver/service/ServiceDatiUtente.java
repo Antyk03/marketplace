@@ -2,19 +2,17 @@ package antyk03.marketplaceserver.service;
 
 import antyk03.marketplaceserver.enums.ERuolo;
 import antyk03.marketplaceserver.enums.EStatoUtente;
-import antyk03.marketplaceserver.modello.DatiUtente;
-import antyk03.marketplaceserver.modello.Prodotto;
-import antyk03.marketplaceserver.modello.Utente;
+import antyk03.marketplaceserver.enums.EStatus;
+import antyk03.marketplaceserver.modello.*;
 import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
-import antyk03.marketplaceserver.persistenza.DAOFactory;
-import antyk03.marketplaceserver.persistenza.IDAODatiUtente;
-import antyk03.marketplaceserver.persistenza.IDAOProdotto;
-import antyk03.marketplaceserver.persistenza.IDAOUtente;
+import antyk03.marketplaceserver.modello.dto.ProdottoOrdineDTO;
+import antyk03.marketplaceserver.persistenza.*;
 import antyk03.marketplaceserver.util.Mapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +21,9 @@ import java.util.List;
 public class ServiceDatiUtente {
 
     private IDAOUtente daoUtente = DAOFactory.getInstance().getDaoUtente();
-    private IDAODatiUtente daoDatiUTente = DAOFactory.getInstance().getDaoDatiUtente();
+    private IDAODatiUtente daoDatiUtente = DAOFactory.getInstance().getDaoDatiUtente();
     private IDAOProdotto daoProdotto = DAOFactory.getInstance().getDaoProdotto();
+    private IDAOOrdine daoOrdine = DAOFactory.getInstance().getDaoOrdine();
 
     public DatiUtenteDTO getInformazioni(String email) {
         Utente utente = daoUtente.findByEmail(email);
@@ -32,7 +31,7 @@ public class ServiceDatiUtente {
             log.info("getInformazioni/ Nessun utente trovato per {}", email);
             throw new IllegalArgumentException("Errore durante l'autenticazione con mail :" + email);
         }
-        DatiUtente datiUtente = daoDatiUTente.findByIdUtente(utente.getId());
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
         }
@@ -49,7 +48,7 @@ public class ServiceDatiUtente {
             log.info("findByEmail/ Nessun utente trovato per {}", email);
             throw new IllegalArgumentException("Errore durante l'autenticazione con mail :" + email);
         }
-        DatiUtente datiUtente = daoDatiUTente.findByIdUtente(utente.getId());
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             log.info("findByEmail/ Nessun dato utente trovato");
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
@@ -67,7 +66,7 @@ public class ServiceDatiUtente {
         Prodotto prodotto = Mapper.map(prodottoDTO, Prodotto.class);
         datiUtente.getProdotti().add(prodotto);
         prodotto.setIdVenditore(datiUtente.getIdUtente());
-        daoDatiUTente.makePersistent(datiUtente);
+        daoDatiUtente.makePersistent(datiUtente);
         daoProdotto.makePersistent(prodotto);
         return prodotto.getId();
     }
@@ -78,7 +77,7 @@ public class ServiceDatiUtente {
             log.info("getProdotti/ Nessun utente trovato per {}", email);
             throw new IllegalArgumentException("Errore durante l'autenticazione con mail :" + email);
         }
-        DatiUtente datiUtente = daoDatiUTente.findByIdUtente(utente.getId());
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             log.info("getProdotti/ Nessun dato utente trovato");
             throw new IllegalArgumentException("Nessun dato trovato per " + email);
@@ -103,7 +102,7 @@ public class ServiceDatiUtente {
         if (utente == null) {
             throw new IllegalArgumentException(" Nessun utente autenticato");
         }
-        DatiUtente datiUtente = daoDatiUTente.findByIdUtente(utente.getId());
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             throw new IllegalArgumentException("Impossibile trovare dati per utente");
         }
@@ -136,11 +135,11 @@ public class ServiceDatiUtente {
             daoProdotto.makeTransient(p);
             daoProdotto.makePersistent(nuovoProdotto);
         }
-        daoDatiUTente.makePersistent(datiUtente);
+        daoDatiUtente.makePersistent(datiUtente);
     }
 
     public List<ProdottoDTO> visualizzaCatalogo() {
-        List<Prodotto> prodotti = daoProdotto.findAll();
+        List<Prodotto> prodotti = daoProdotto.findAllBuyable();
         List<ProdottoDTO> prodottiDTO = new ArrayList<>();
         for (Prodotto p : prodotti) {
             prodottiDTO.add(Mapper.map(p, ProdottoDTO.class));
@@ -149,6 +148,29 @@ public class ServiceDatiUtente {
             throw new IllegalArgumentException("Nessun prodotto nel catalogo.");
         }
         return prodottiDTO;
+    }
+
+    public void svuotaCarrello(String email) {
+        Utente utente = daoUtente.findByEmail(email);
+        if (utente == null) {
+            throw new IllegalArgumentException("Utente non autenticato");
+        }
+        Long idUtente = utente.getId();
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(idUtente);
+        if (datiUtente == null) {
+            throw new IllegalArgumentException("Nessun dato trovato per l'utente");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
+        if (datiUtente.getRuolo() == ERuolo.VENDOR) {
+            throw new IllegalArgumentException("Non hai il permesso di acquistare o aggiungere al carrello dei prodotti.");
+        }
+        Ordine ordine = daoOrdine.findCarrelloUtente(idUtente);
+        if (ordine == null) {
+            throw new IllegalArgumentException("Carrello già vuoto.");
+        }
+        ordine.getProdotti().clear();
     }
 
 

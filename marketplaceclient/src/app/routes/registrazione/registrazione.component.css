@@ -1,0 +1,82 @@
+.register-container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:80vh;
+  padding:1rem;
+  background: transparent; /* Cambiato da #f5f7fa */
+}
+
+/* Unica card, attenzione: non usare .card di bootstrap qui */
+.register-card{
+  width:100%;
+  max-width:380px;
+  background:#ffffff;
+  border-radius:12px;
+  padding:24px;
+  box-shadow: 0 10px 25px rgba(20,30,50,0.07); /* leggera e morbida */
+  transform: translateZ(0);
+}
+
+/* Titolo più compatto */
+.title {
+  text-align:center;
+  margin:0 0 12px 0;
+  font-size:1.25rem;
+  color:#222;
+}
+
+/* Campi */
+.field {
+  margin-bottom:12px;
+}
+label {
+  display:block;
+  margin-bottom:6px;
+  font-size:0.9rem;
+  color:#444;
+}
+.input {
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #e0e6ef;
+  border-radius:8px;
+  font-size:0.95rem;
+  background: #fff;
+  box-sizing:border-box;
+}
+.input:focus{
+  outline:none;
+  border-color:#6ca0ff;
+  box-shadow: 0 0 0 4px rgba(108,160,255,0.08);
+}
+
+/* Messaggi di errore */
+.error {
+  margin-top:6px;
+  font-size:0.85rem;
+  color:#d9534f;
+}
+
+/* Pulsante */
+.btn-submit {
+  width:100%;
+  padding:10px 12px;
+  margin-top:8px;
+  border-radius:8px;
+  border:none;
+  background:#007bff;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-submit[disabled] {
+  opacity:0.55;
+  cursor:not-allowed;
+}
+
+/* Responsive: mantieni margini sui piccoli schermi */
+@media (max-width:420px){
+  .register-card { padding:18px; max-width: 95%; }
+  .title { font-size:1.1rem; }
+}

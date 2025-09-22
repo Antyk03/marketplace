@@ -1,7 +1,77 @@
-.h1 {
-  color: aliceblue;
+/* Navbar */
+.navbar {
+  padding: 0.5rem 1rem;
 }
 
-.username {
-  color: aliceblue;
+/* Desktop menu */
+.desktop-menu .nav-item {
+  margin-left: 1rem;
+}
+
+.desktop-menu .nav-link {
+  color: #fff;
+  font-weight: 500;
+}
+
+.desktop-menu .nav-link:hover {
+  color: #cce5ff;
+  text-decoration: underline;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.menu-toggle {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.menu-toggle span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* Rotazione triangolo */
+.menu-toggle span.rotate {
+  transform: rotate(180deg);
+}
+
+/* Dropdown mobile */
+.menu-dropdown-mobile {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #80c0ff; /* blu chiaro */
+  border-radius: 8px;
+  padding: 0.5rem;
+  z-index: 1000;
+  min-width: 180px;
+}
+
+.menu-dropdown-mobile a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.menu-dropdown-mobile a:hover {
+  text-decoration: underline;
+}
+
+/* Pulsante elimina account mobile */
+.menu-dropdown-mobile button {
+  width: 100%;
+}
+
+/* Media desktop */
+@media(min-width: 768px){
+  .mobile-menu { display: none; }
 }

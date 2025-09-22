@@ -20,17 +20,26 @@ export class DaoDatiUtenteService {
     return lastValueFrom(obs);
   }
 
-  public getCatalogo(): Promise<Prodotto[]> {
-    const path = environment.backendUrl + 'me/catalogo';
-    console.log("PAth: " + path );
-    const obs = this.httpClient.get<Prodotto[]>(path);
-    return lastValueFrom(obs);
-  }
 
   public getProdottiUtente(): Promise<Prodotto[]> {
     const path = environment.backendUrl + 'me/prodotti';
     console.log("PATH: " + path);
     const obs = this.httpClient.get<Prodotto[]>(path);
+    console.info(lastValueFrom(obs));
+    return lastValueFrom(obs);
+  }
+
+  public getUtenti (): Promise<DatiUtente[]> {
+    const path = environment.backendUrl + 'admin/utenti';
+    console.log("PATH: " + path);
+    const obs = this.httpClient.get<DatiUtente[]>(path);
+    return lastValueFrom(obs);
+  }
+
+  public svuotaCarrello(): Promise<void> {
+    const path = environment.backendUrl +'me/svuota';
+    console.log("PATH: " + path);
+    const obs = this.httpClient.post<void>(path, null);
     return lastValueFrom(obs);
   }
 

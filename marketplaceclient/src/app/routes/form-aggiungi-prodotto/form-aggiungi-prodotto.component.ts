@@ -6,6 +6,7 @@ import { ModelloService } from '../../service/modello.service';
 import { C } from '../../service/c';
 import { Utente } from '../../model/utente';
 import { DAOProdotti } from '../../service/dao/dao-prodotti.service';
+import { CatalogoService } from '../../service/catalogo.service';
 
 @Component({
   selector: 'app-form-aggiungi-prodotto',
@@ -14,7 +15,7 @@ import { DAOProdotti } from '../../service/dao/dao-prodotti.service';
 })
 export class FormAggiungiProdottoComponent {
 
-  constructor(private messaggi:MessaggiService, private modello: ModelloService, private daoProdotti:DAOProdotti) {}
+  constructor(private messaggi:MessaggiService, private modello: ModelloService, private daoProdotti:DAOProdotti, private catalogoService:CatalogoService) {}
 
   formAggiungi: FormGroup = new FormGroup ({
     nome: new FormControl("", [Validators.required]),
@@ -31,6 +32,7 @@ export class FormAggiungiProdottoComponent {
       await this.daoProdotti.aggiungiProdotto(prodotto);
       this.formAggiungi.reset({prezzo: 1, quantita: 1});
       this.messaggi.mostraMessaggioInformazioni("Nuovo prodotto inserito.")
+      await this.catalogoService.aggiornaCatalogoDaServer();
     } catch (ex) {
       console.error(ex);
       this.messaggi.mostraMessaggioErrore("Impossibile aggiungere il prodotto.");

@@ -9,6 +9,7 @@ import antyk03.marketplaceserver.service.ServiceUtenti;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -66,5 +67,14 @@ public class RisorsaOrdine {
     public List<OrdineDTO> visualizzaStorico() {
         String email = securityContext.getUserPrincipal().getName();
         return serviceOrdine.visualizzaStorico(email);
+    }
+
+    @POST
+    @Path("/{idProdotto}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public void rimuoviProdotto (@NotNull @PathParam("idProdotto") Long idProdotto) {
+        String email = securityContext.getUserPrincipal().getName();
+        serviceOrdine.rimuoviProdotto(idProdotto, email);
     }
 }

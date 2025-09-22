@@ -1,0 +1,13 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <h5 class="mb-3">Conferma eliminazione account</h5>
+    <p>Inserisci il tuo username per confermare l'eliminazione dell'account:</p>
+    <input type="text" [(ngModel)]="usernameConferma" placeholder="Username" class="form-control mb-2" />
+    <div *ngIf="erroreModal" class="text-danger mb-2">{{erroreModal}}</div>
+    <div class="text-end">
+      <button class="btn btn-secondary me-2" (click)="chiudiModal()">Annulla</button>
+      <button class="btn btn-danger" (click)="confermaEliminaAccount()">Elimina</button>
+    </div>
+  </div>
+</div>

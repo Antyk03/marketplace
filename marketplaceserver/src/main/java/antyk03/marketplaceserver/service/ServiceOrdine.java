@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @ApplicationScoped
@@ -116,47 +117,84 @@ public class ServiceOrdine {
         }
     }
 
-    public OrdineDTO effettuaOrdine (String email) {
+    public OrdineDTO effettuaOrdine(String email) {
         Utente utente = daoUtente.findByEmail(email);
         if (utente == null) {
             throw new IllegalArgumentException("Utente non autenticato");
         }
+
         DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
-            throw new IllegalArgumentException("Nessun informazione sull'utente");
+            throw new IllegalArgumentException("Nessuna informazione sull'utente");
         }
+
         if (datiUtente.getRuolo().equals(ERuolo.VENDOR)) {
             throw new IllegalArgumentException("Impossibile ordinare da venditore.");
         }
+
         Ordine carrello = daoOrdine.findCarrelloUtente(utente.getId());
         if (carrello == null) {
             throw new IllegalArgumentException("Nessun carrello, impossibile completare l'ordine");
         }
+
         List<ProdottoOrdineDTO> prodottiDTO = new ArrayList<>();
-        for (ProdottoOrdine po: carrello.getProdotti()) {
+        Iterator<ProdottoOrdine> it = carrello.getProdotti().iterator();
+
+        while (it.hasNext()) {
+            ProdottoOrdine po = it.next();
             Prodotto p = daoProdotto.findById(po.getIdProdotto());
-            if (po.getQuantita() > p.getQuantita()) {
-                throw new IllegalArgumentException("Stock insufficiente per il prodotto: " + p.getNome());
+
+            if (p == null) {
+                // prodotto eliminato → tolgo dal carrello
+                it.remove();
+                continue;
             }
-            p.setQuantita(p.getQuantita() - po.getQuantita());
-            if (p.getQuantita() == 0) {
-                daoProdotto.makeTransient(p);
+
+            if (p.getQuantita() <= 0) {
+                // esaurito → tolgo dal carrello
+                it.remove();
+                continue;
             }
+
+            // Se la quantità richiesta è maggiore della disponibile → riduco
+            int acquistabili = Math.min(po.getQuantita(), p.getQuantita());
+            if (acquistabili <= 0) {
+                it.remove();
+                continue;
+            }
+
+            // aggiorno stock prodotto
+            p.setQuantita(p.getQuantita() - acquistabili);
+            daoProdotto.makePersistent(p);
+
+            // aggiorno quantità effettiva dell’ordine
+            po.setQuantita(acquistabili);
+
             ProdottoOrdineDTO poDTO = Mapper.map(po, ProdottoOrdineDTO.class);
             prodottiDTO.add(poDTO);
         }
+
+        if (prodottiDTO.isEmpty()) {
+            // nessun prodotto valido
+            daoOrdine.makePersistent(carrello); // salva eventuali modifiche al carrello
+            throw new IllegalArgumentException("Carrello vuoto o prodotti non disponibili");
+        }
+
+        carrello.setStatus(EStatus.PAID);
+        carrello.calcolaTotale();
+        daoOrdine.makePersistent(carrello);
+
         OrdineDTO ordineDTO = new OrdineDTO();
         ordineDTO.setId(carrello.getId());
         ordineDTO.setProdottiOrdineDTO(prodottiDTO);
         ordineDTO.setStatus(EStatus.PAID);
         ordineDTO.setDataCreazione(carrello.getDataCreazione());
         ordineDTO.setValuta(carrello.getValuta());
-        carrello.calcolaTotale();
         ordineDTO.setTotale(carrello.getTotale());
-        carrello.setStatus(EStatus.PAID);
-        daoOrdine.makePersistent(carrello);
+
         return ordineDTO;
     }
+
 
     public List<OrdineDTO> visualizzaStorico (String email) {
         Utente utente = daoUtente.findByEmail(email);
@@ -186,6 +224,34 @@ public class ServiceOrdine {
             ordiniDTO.add(ordineDTO);
         }
         return ordiniDTO;
+    }
+
+    public void rimuoviProdotto(Long idProdotto, String email) {
+        Utente utente = daoUtente.findByEmail(email);
+        if (utente == null) {
+            throw new IllegalArgumentException("Utente non autenticato");
+        }
+        Long idUtente = utente.getId();
+        DatiUtente datiUtente = daoDatiUtente.findByIdUtente(idUtente);
+        if (datiUtente == null) {
+            throw new IllegalArgumentException("Nessun dato trovato per l'utente");
+        }
+        if (datiUtente.getStatoUtente() == EStatoUtente.BLOCCATO) {
+            throw new IllegalArgumentException("Utente bloccato.");
+        }
+        if (datiUtente.getRuolo() == ERuolo.VENDOR) {
+            throw new IllegalArgumentException("Non hai il permesso di acquistare o aggiungere al carrello dei prodotti.");
+        }
+        Ordine ordine = daoOrdine.findCarrelloUtente(idUtente);
+        if (ordine == null) {
+            throw new IllegalArgumentException("Carrello vuoto.");
+        }
+        boolean removed = ordine.getProdotti().removeIf(p -> p.getIdProdotto().equals(idProdotto));
+        if (!removed) {
+            throw new IllegalArgumentException("Prodotto non trovato nel carrello.");
+        }
+
+        daoOrdine.makePersistent(ordine);
     }
 
 }

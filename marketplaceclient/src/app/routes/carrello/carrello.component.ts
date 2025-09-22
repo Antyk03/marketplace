@@ -1,3 +1,4 @@
+import { DaoDatiUtenteService } from './../../service/dao/dao-dati_utente.service';
 import { DAOOrdini } from './../../service/dao/dao-ordini.service';
 import { Component, OnInit } from '@angular/core';
 import { Prodotto } from '../../model/prodotto';
@@ -5,6 +6,8 @@ import { ModelloService } from '../../service/modello.service';
 import { MessaggiService } from '../../service/messaggi.service';
 import { C } from '../../service/c';
 import { Ordine } from '../../model/ordine';
+import { HomeComponent } from '../home/home.component';
+import { CatalogoService } from '../../service/catalogo.service';
 
 @Component({
   selector: 'app-carrello',
@@ -15,7 +18,7 @@ export class CarrelloComponent implements OnInit{
   carrello?: Ordine;
   storico: Ordine[] = [];
 
-  constructor(private daoOrdini:DAOOrdini, private modelloService: ModelloService, private messaggiService: MessaggiService) {}
+  constructor(private daoDatiUtente: DaoDatiUtenteService, private catalogoService:CatalogoService, private daoOrdini:DAOOrdini, private modelloService: ModelloService, private messaggiService: MessaggiService) {}
 
   async ngOnInit() {
       await this.caricaDati();
@@ -48,9 +51,36 @@ export class CarrelloComponent implements OnInit{
       this.messaggiService.mostraMessaggioInformazioni("Acquisto completato con successo");
       console.log("Sto acquistando.");
       await this.caricaDati();
+      await this.catalogoService.aggiornaCatalogoDaServer();
     } catch(ex) {
       console.error(ex);
       this.messaggiService.mostraMessaggioErrore("Errore durante l'acquisto. " + ex);
+    }
+  }
+
+  async onClickRimuovi(idProdotto: number) {
+    try {
+      await this.daoOrdini.rimuoviProdotto(idProdotto);
+      this.messaggiService.mostraMessaggioInformazioni("Rimozione avvenuta con successo");
+      console.log("Sto rimuovendo.");
+      await this.caricaDati();
+      await this.catalogoService.aggiornaCatalogoDaServer();
+    } catch(ex) {
+      console.error(ex);
+      this.messaggiService.mostraMessaggioErrore("Errore durante la rimozione. " + ex);
+    }
+  }
+
+  async onClickSvuota() {
+    try {
+      await this.daoDatiUtente.svuotaCarrello();
+      this.messaggiService.mostraMessaggioInformazioni("Carrello svuotato con successo");
+      console.log("Sto rimuovendo.");
+      await this.caricaDati();
+      await this.catalogoService.aggiornaCatalogoDaServer();
+    } catch(ex) {
+      console.error(ex);
+      this.messaggiService.mostraMessaggioErrore("Errore durante l'operazione. " + ex);
     }
   }
 

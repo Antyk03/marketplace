@@ -1,0 +1,66 @@
+<div class="admin-container">
+
+  <!-- Tabella Utenti -->
+  <div class="table-container">
+    <h2>Gestione Utenti</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Ruolo</th>
+            <th class="hide-mobile">Stato</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let utente of datiUtenti">
+            <td>{{ utente.username }}</td>
+            <td>{{ utente.email }}</td>
+            <td>{{ utente.ruolo }}</td>
+            <td class="hide-mobile">{{ utente.statoUtente }}</td>
+            <td>
+              <button
+                *ngIf="utente.ruolo !== 'ADMIN'"
+                (click)="toggleStatoUtente(utente.idUtente!)"
+                class="btn btn-block btn-sm">
+                {{ utente.statoUtente === 'ATTIVO' ? 'Blocca' : 'Sblocca' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabella Prodotti -->
+  <div class="table-container">
+    <h2>Gestione Catalogo</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Prezzo</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prodotto of catalogo">
+            <td>{{ prodotto.nome }}</td>
+            <td>{{ prodotto.prezzo | currency:'EUR' }}</td>
+            <td>
+              <button
+                (click)="eliminaProdotto(prodotto.id!)"
+                class="btn btn-delete btn-sm">
+                Elimina
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

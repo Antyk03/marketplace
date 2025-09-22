@@ -43,5 +43,11 @@ export class DAOOrdini {
     return lastValueFrom(obs);
   }
 
+  public rimuoviProdotto(idProdotto: number): Promise<void>{
+    const path = environment.backendUrl + 'ordine/' + idProdotto;
+    console.log("PATH: " + path);
+    const obs = this.httpClient.post<void>(path, idProdotto);
+    return lastValueFrom(obs);
+  }
 
 }

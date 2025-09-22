@@ -5,6 +5,7 @@ import antyk03.marketplaceserver.enums.ERuolo;
 import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.modello.DatiUtente;
 import antyk03.marketplaceserver.modello.Prodotto;
+import antyk03.marketplaceserver.modello.ProdottoOrdine;
 import antyk03.marketplaceserver.modello.Utente;
 import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
@@ -123,22 +124,19 @@ public class ServiceUtenti {
         if (utenteLog == null) {
             throw new IllegalArgumentException("Nessuna informazione sull'utente loggato.");
         }
-        if (!utenteLog.getRuolo().equals(ERuolo.ADMIN)) {
-            throw new IllegalArgumentException("Non hai il permesso.");
-        }
         Prodotto prodotto = daoProdotto.findById(idProdotto);
         if (prodotto == null) {
             throw new IllegalArgumentException("Nessun prodotto trovato con id: " + idProdotto);
         }
-        DatiUtente venditore = daoDatiUtente.findById(prodotto.getIdVenditore());
-        if (venditore == null) {
-            daoProdotto.makeTransient(prodotto);
-            return;
+        if (!utenteLog.getRuolo().equals(ERuolo.ADMIN)) {
+            throw new IllegalArgumentException("Non hai il permesso di eliminare questo prodotto.");
         }
-        venditore.getProdotti().remove(prodotto);
-        daoProdotto.makeTransient(prodotto);
-        daoDatiUtente.makePersistent(venditore);
-        return;
+        DatiUtente venditore = daoDatiUtente.findByIdUtente(prodotto.getIdVenditore());
+        if (venditore != null) {
+            venditore.getProdotti().remove(prodotto);
+            daoDatiUtente.makePersistent(venditore);
+            daoProdotto.makeTransient(prodotto);
+        }
     }
 
     public String registraUtente(UtenteDTO utenteDTO, DatiUtenteDTO datiUtenteDTO) {
@@ -183,4 +181,5 @@ public class ServiceUtenti {
         daoDatiUtente.makeTransient(datiUtente);
         daoUtente.makeTransient(utente);
     }
+
 }

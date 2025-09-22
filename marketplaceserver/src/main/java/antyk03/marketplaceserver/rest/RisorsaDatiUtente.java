@@ -40,6 +40,7 @@ public class RisorsaDatiUtente {
         return serviceDatiUtente.getInformazioni(email);
     }
 
+
     @GET
     @Path("/prodotti")
     @Produces(MediaType.APPLICATION_JSON)
@@ -77,6 +78,15 @@ public class RisorsaDatiUtente {
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProdottoDTO> visualizzaCatalogo () {
         return serviceDatiUtente.visualizzaCatalogo();
+    }
+
+
+    @POST
+    @Path("/svuota")
+    @Produces(MediaType.TEXT_PLAIN)
+    public void svuotaCarrello() {
+        String email = securityContext.getUserPrincipal().getName();
+        serviceDatiUtente.svuotaCarrello(email);
     }
 
 }

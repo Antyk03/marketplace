@@ -38,4 +38,18 @@ export class DAOProdotti {
     return undefined;
   }
 
+  public getCatalogo(): Promise<Prodotto[]> {
+    const path = environment.backendUrl + 'me/catalogo';
+    console.log("PAth: " + path );
+    const obs = this.httpClient.get<Prodotto[]>(path);
+    return lastValueFrom(obs);
+  }
+
+    public eliminaProdotto(idProdotto: number): Promise<void> {
+      const path = environment.backendUrl + 'admin/'+idProdotto+"/rimuovi";
+      console.log("PATH: " + path);
+      const obs = this.httpClient.post<void>(path, idProdotto);
+      return lastValueFrom(obs);
+    }
+
 }

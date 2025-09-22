@@ -9,15 +9,19 @@ import { FormAggiungiProdottoComponent } from './routes/form-aggiungi-prodotto/f
 import { FormModificaProdottoComponent } from './routes/form-modifica-prodotto/form-modifica-prodotto.component';
 import { prodottiResolver} from './resolver/prodotti.resolver';
 import { CarrelloComponent } from './routes/carrello/carrello.component';
+import { AdminComponent } from './routes/admin/admin.component';
+import { RegistrazioneComponent } from './routes/registrazione/registrazione.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full'},
+  { path: 'register', component: RegistrazioneComponent },
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard] },
   { path: 'catalogo', component: CatalogoComponent},
   { path: 'aggiungi-prodotto', component: FormAggiungiProdottoComponent, canActivate:[AuthGuard] },
   { path: 'home/prodotti/:idProdotto', component: FormModificaProdottoComponent, canActivate:[AuthGuard], resolve: {prod: prodottiResolver}},
-  { path: 'carrello', component: CarrelloComponent, canActivate:[AuthGuard]},
+  { path: 'carrello', component: CarrelloComponent, canActivate:[AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate:[AuthGuard] },
   { path: '**', component: PaginaNonTrovataComponent}
 ];
 

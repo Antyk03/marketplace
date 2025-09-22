@@ -2,14 +2,16 @@ import { Injectable } from "@angular/core";
 import { C } from "./c";
 
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class ModelloService {
 
-  private beans: Map<C, any> = new Map<C, any>()
+  private beans: Map<C, any> = new Map<C, any>();
 
   constructor() {}
+
 
   getBean<T> (key: C): T | undefined {
     return this.beans.get(key);
