@@ -7,6 +7,7 @@ import { RegistrazioneUtente } from '../../model/registrazione_utente';
 import { DatiUtente } from '../../model/dati_utente';
 import { Utente } from '../../model/utente';
 import { EStatoUtente } from '../../model/enums/EStatoUtente';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registrazione',
@@ -17,14 +18,14 @@ export class RegistrazioneComponent {
   formGroup!: FormGroup;
   ruoliDisponibili = [ERuolo.USER, ERuolo.VENDOR];
 
-  constructor(private fb: FormBuilder, private messaggiService: MessaggiService, readonly daoUtenti: DaoUtenteService) {}
+  constructor(private fb: FormBuilder, private messaggiService: MessaggiService, readonly daoUtenti: DaoUtenteService, private router:Router) {}
 
   ngOnInit(): void {
     this.formGroup = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       ruolo: [this.ruoliDisponibili[0], Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(4)]]
     });
   }
 
@@ -49,6 +50,7 @@ export class RegistrazioneComponent {
     );
     this.daoUtenti.registraUtente(registrazione);
     this.messaggiService.mostraMessaggioInformazioni("Registrazione completata con successo!");
+    this.router.navigate(['/login']);
   }
 
   // Getter per i controlli

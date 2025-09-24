@@ -42,12 +42,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     try {
       // Sottoscrizione al catalogo
+
       this.sub = this.catalogoService.prodotti$.subscribe(p => {
         this.prodotti = p;
       });
 
       this.datiUtente = this.modelloService.getPersistentBean(C.DATI_UTENTE_LOGIN);
-
       if (this.datiUtente?.ruolo !== ERuolo.USER) {
         this.prodottiUtente = await this.daoDatiUtenteService.getProdottiUtente();
         this.modelloService.putBean(C.PRODOTTI_UTENTE, this.prodottiUtente);
@@ -55,8 +55,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       // Primo caricamento dal server (solo qui!)
       await this.catalogoService.aggiornaCatalogoDaServer();
+      console.log(JSON.stringify(this.prodotti));
+      console.log(JSON.stringify(this.prodottiUtente));
     } catch (err) {
-      console.error("Errore caricando i dati utente", err);
+      console.error("Errore ", err);
       this.messaggiService.mostraMessaggioErrore("Errore: " + err);
     }
   }

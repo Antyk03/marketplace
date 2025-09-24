@@ -5,7 +5,6 @@ import antyk03.marketplaceserver.enums.ERuolo;
 import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.modello.DatiUtente;
 import antyk03.marketplaceserver.modello.Prodotto;
-import antyk03.marketplaceserver.modello.ProdottoOrdine;
 import antyk03.marketplaceserver.modello.Utente;
 import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;

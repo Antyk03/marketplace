@@ -1,8 +1,5 @@
 package antyk03.marketplaceserver.filtri.eccezioni;
 
-import antyk03.marketplaceserver.enums.EStrategiaPersistenza;
-import antyk03.marketplaceserver.modello.Configurazione;
-import antyk03.marketplaceserver.persistenza.hibernate.DAOUtilHibernate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.Response;
@@ -19,23 +16,17 @@ public class GenericExceptionFilter implements ExceptionMapper<Throwable> {
 
    @Override
     public Response toResponse(Throwable ex) {
-       try {
-           if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE) &&
-           DAOUtilHibernate.getSessionFactory().getCurrentSession().isOpen()) {
-               log.debug("Effettuo il rollback della transazione");
-               DAOUtilHibernate.rollback();
-           }
-       } catch (Exception e) {
-           log.warn("Impossibile effettuare il rollback della transazione {}", e.getMessage(), e);
-       }
-       log.error("Errore durante la gestione della richiesta {}", ex.getMessage(), ex);
+       log.error("Errore durante la gestione della richiesta: {}", ex.getMessage(), ex);
+
        ObjectNode json = mapper.createObjectNode();
        json.put("error", ex.getMessage());
        return Response.status(getStatus(ex)).entity(json.toPrettyString()).build();
    }
 
    private Response.Status getStatus(Throwable ex) {
-       if (ex instanceof jakarta.ws.rs.BadRequestException || ex instanceof IllegalArgumentException || ex instanceof jakarta.validation.ValidationException) {
+       if (ex instanceof jakarta.ws.rs.BadRequestException ||
+            ex instanceof IllegalArgumentException ||
+            ex instanceof jakarta.validation.ValidationException) {
            return Response.Status.BAD_REQUEST;
        }
        return Response.Status.INTERNAL_SERVER_ERROR;

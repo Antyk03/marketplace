@@ -1,7 +1,6 @@
 package antyk03.marketplaceserver.filtri.eccezioni;
 
 
-import antyk03.marketplaceserver.persistenza.hibernate.DAOUtilHibernate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.Response;
@@ -19,17 +18,12 @@ public class ParamExceptionFilter implements ExceptionMapper<ParamException> {
 
     @Override
     public Response toResponse(ParamException ex) {
-        try {
-            if (DAOUtilHibernate.getSessionFactory().getCurrentSession().isOpen()) {
-                log.debug("Effettuo il rollback della transazione");
-                DAOUtilHibernate.rollback();
-            }
-        } catch (Exception e) {
-            log.warn("Impossibile effettuare il rollback della transazione {}", e.getMessage(), e);
-        }
-        log.error("Errore durante la gestione della richiesta  {}", ex.getMessage(), ex);
+        log.error("Errore durante la gestione della richiesta: {}", ex.getMessage(), ex);
+
         ObjectNode json = mapper.createObjectNode();
-        json.put("error", ex.getParameterName() + ": " + ex.getCause().getMessage());
+        String causeMessage = ex.getCause() != null ? ex.getCause().getMessage() : "Parametro non valido";
+        json.put("error", ex.getParameterName() + ": " +causeMessage);
+
         return Response.status(Response.Status.BAD_REQUEST).entity(json.toPrettyString()).build();
     }
 

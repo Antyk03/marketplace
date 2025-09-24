@@ -1,6 +1,8 @@
 package antyk03.marketplaceserver.modello;
 
 import antyk03.marketplaceserver.enums.EStrategiaPersistenza;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,22 +11,25 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
 public class Configurazione {
     private static Configurazione singleton = new Configurazione();
+    @Getter
+    private final EntityManagerFactory emf;
+
 
     public static Configurazione getInstance() {
         return singleton;
     }
 
-    private EStrategiaPersistenza strategiaDb = EStrategiaPersistenza.DB_MOCK;
-    //private EStrategiaPersistenza strategiaDb = EStrategiaPersistenza.DB_HIBERNATE;
-    private String jwtSecret;
+    //private EStrategiaPersistenza strategiaDb = EStrategiaPersistenza.DB_MOCK;
+    private EStrategiaPersistenza strategiaDb = EStrategiaPersistenza.DB_HIBERNATE;
     @Getter
-    @Setter
-    private SessionFactory sessionFactory;
+    private String jwtSecret;
 
     private Configurazione() {
         Properties properties = new Properties();
@@ -36,17 +41,12 @@ public class Configurazione {
             properties.load(input);
             this.jwtSecret = properties.getProperty("jwtSecret");
 
-            String dbUrl = properties.getProperty("db.url");
-            String dbUser = properties.getProperty("db.username");
-            String dbPass = properties.getProperty("db.password");
+            Map<String, String> overrides = new HashMap<>();
+            overrides.put("jakarta.persistence.jdbc.url", properties.getProperty("db.url"));
+            overrides.put("jakarta.persistence.jdbc.user", properties.getProperty("db.username"));
+            overrides.put("jakarta.persistence.jdbc.password", properties.getProperty("db.password"));
 
-            log.info("DB URL: " +dbUrl + "\nDB USER: " + dbUser + "\nDB PASSWORD: " + dbPass + "\n");
-
-            Configuration configuration = new Configuration();
-            configuration.configure("hibernate.cfg.xml");
-            configuration.setProperty("hibernate.connection.url", dbUrl);
-            configuration.setProperty("hibernate.connection.username", dbUser);
-            configuration.setProperty("hibernate.connection.password", dbPass);
+            this.emf = Persistence.createEntityManagerFactory("myPU", overrides);
 
         } catch (IOException e) {
             throw new RuntimeException("Impossibile leggere secrets.properties", e);
@@ -65,7 +65,4 @@ public class Configurazione {
         this.strategiaDb = strategiaDb;
     }
 
-    public String getJwtSecret() {
-        return jwtSecret;
-    }
 }

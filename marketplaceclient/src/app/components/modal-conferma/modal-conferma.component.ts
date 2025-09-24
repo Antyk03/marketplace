@@ -39,6 +39,7 @@ export class ModalConfermaComponent implements OnInit {
   }
 
   async confermaEliminaAccount() {
+    this.datiUtente = await this.daoDatiUtenti.getDatiUtente();
     if (this.usernameConferma !== this.datiUtente?.username) {
       this.erroreModal = 'Username non corretto.';
       return;

@@ -1,8 +1,5 @@
 package antyk03.marketplaceserver.filtri.eccezioni;
 
-import antyk03.marketplaceserver.enums.EStrategiaPersistenza;
-import antyk03.marketplaceserver.modello.Configurazione;
-import antyk03.marketplaceserver.persistenza.hibernate.DAOUtilHibernate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.validation.ValidationException;
@@ -19,16 +16,8 @@ public class ValidationExceptionFilter implements ExceptionMapper<ValidationExce
 
     @Override
     public Response toResponse(ValidationException ex) {
-        try {
-            if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE) &&
-                    DAOUtilHibernate.getSessionFactory().getCurrentSession().isOpen()) {
-                log.debug("Effettuo il rollback della transazione");
-                DAOUtilHibernate.rollback();
-            }
-        } catch (Exception e) {
-            log.warn("Impossibile effettuare il rollback della transazione {}", e.getMessage());
-        }
-        log.error("Errore durante la gestione della richiesta {}", ex.getMessage(), ex);
+        log.error("Errore durante la gestione della richiesta: {}", ex.getMessage(), ex);
+
         ObjectNode json = mapper.createObjectNode();
         json.put("error", ex.getMessage());
         return Response.status(Response.Status.BAD_REQUEST).entity(json.toPrettyString()).build();
