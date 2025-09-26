@@ -4,6 +4,7 @@ package antyk03.marketplaceserver.service;
 import antyk03.marketplaceserver.enums.ERuolo;
 import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.enums.EStatus;
+import antyk03.marketplaceserver.enums.EStrategiaPersistenza;
 import antyk03.marketplaceserver.modello.*;
 import antyk03.marketplaceserver.modello.dto.OrdineDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
@@ -14,6 +15,7 @@ import antyk03.marketplaceserver.persistenza.mock.DAOUtenteMock;
 import antyk03.marketplaceserver.util.Mapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.servlet.WebConfig;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,15 +55,23 @@ public class ServiceOrdine {
             return carrelloDTO;
         }
         List<ProdottoOrdineDTO> prodottiDTO = new ArrayList<>();
-        for (ProdottoOrdine po: carrello.getProdotti()) {
-            po.calcolaTotale();
+        List<ProdottoOrdine> prodottiCarrello;
+        if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+            prodottiCarrello = daoProdottoOrdine.findByIdOrdineAndOrdineStatus(carrello.getId(), EStatus.DRAFT);
+        } else {
+            prodottiCarrello = carrello.getProdotti();
+        }
+        double totale = 0;
+        for (ProdottoOrdine po: prodottiCarrello) {
+            po.setTotale(po.getPrezzoUnitario().multiply(BigDecimal.valueOf(po.getQuantita())));
+            totale +=  po.getTotale().doubleValue();
             ProdottoOrdineDTO poDTO = Mapper.map(po, ProdottoOrdineDTO.class);
             prodottiDTO.add(poDTO);
         }
         carrelloDTO.setId(carrello.getId());
         carrelloDTO.setStatus(carrello.getStatus());
         carrelloDTO.setValuta(carrello.getValuta());
-        carrello.calcolaTotale();
+        carrello.setTotale(BigDecimal.valueOf(totale));
         log.info(String.valueOf(carrello.getTotale()));
         carrelloDTO.setTotale(carrello.getTotale());
         carrelloDTO.setDataCreazione(carrello.getDataCreazione());
@@ -88,28 +98,50 @@ public class ServiceOrdine {
         Ordine ordine = daoOrdine.findCarrelloUtente(idUtente);
         if (ordine == null) {
             ordine = new Ordine(idUtente, EStatus.DRAFT, LocalDateTime.now(), "EUR");
+            daoOrdine.makePersistent(ordine);
         }
         Prodotto prodotto = daoProdotto.findById(prodottoOrdineDTO.getIdProdotto());
         if (prodotto == null) {
             throw new IllegalArgumentException("Prodotto con id " + prodottoOrdineDTO.getIdProdotto() + " non esistente.");
         }
+        if (prodotto.getPrezzo()== null) {
+            throw new IllegalArgumentException("Prodott senza prezzo");
+        }
         if (prodottoOrdineDTO.getQuantita() > prodotto.getQuantita()) {
             throw new IllegalArgumentException("Impossibile aggiungere più di " + prodotto.getQuantita() + " al carrello.");
         }
-        ProdottoOrdine prodottoOrdine = Mapper.map(prodottoOrdineDTO, ProdottoOrdine.class);
-        prodottoOrdine.calcolaTotale();
-        ProdottoOrdine vecchioProdottoOrdine = ordine.cercaProdottoOrdine(prodotto.getId());
+        ProdottoOrdine vecchioProdottoOrdine = null;
+        if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+            List<ProdottoOrdine> lista = daoProdottoOrdine.findByIdOrdineAndOrdineStatus(ordine.getId(), EStatus.DRAFT);
+            if (lista == null) {
+                lista = java.util.Collections.emptyList();
+            }
+            for (ProdottoOrdine po: lista) {
+                if (Long.valueOf(po.getIdProdotto()).equals(prodotto.getId())) {
+                    vecchioProdottoOrdine = po;
+                    break;
+                }
+            }
+        } else {
+            vecchioProdottoOrdine = ordine.cercaProdottoOrdine(prodotto.getId());
+        }
         if (vecchioProdottoOrdine != null) {
-            int quantita = vecchioProdottoOrdine.getQuantita() + prodottoOrdine.getQuantita();
+            int quantita = vecchioProdottoOrdine.getQuantita() + prodottoOrdineDTO.getQuantita();
             if (quantita > prodotto.getQuantita()) {
                 throw new IllegalArgumentException("Impossibile superare il limite di magazzino del prodotto.");
             }
             vecchioProdottoOrdine.setQuantita(quantita);
+            vecchioProdottoOrdine.setPrezzoUnitario(prodottoOrdineDTO.getPrezzoUnitario());
             vecchioProdottoOrdine.calcolaTotale();
             daoProdottoOrdine.makePersistent(vecchioProdottoOrdine);
             return vecchioProdottoOrdine.getId();
         } else {
-            ordine.getProdotti().add(prodottoOrdine);
+            ProdottoOrdine prodottoOrdine = Mapper.map(prodottoOrdineDTO, ProdottoOrdine.class);
+            prodottoOrdine.setIdOrdine(ordine.getId());
+            prodottoOrdine.calcolaTotale();
+            if (!Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+                ordine.getProdotti().add(prodottoOrdine);
+            }
             ordine.setIdUtente(idUtente);
             daoProdottoOrdine.makePersistent(prodottoOrdine);
             daoOrdine.makePersistent(ordine);
@@ -122,68 +154,64 @@ public class ServiceOrdine {
         if (utente == null) {
             throw new IllegalArgumentException("Utente non autenticato");
         }
-
         DatiUtente datiUtente = daoDatiUtente.findByIdUtente(utente.getId());
         if (datiUtente == null) {
             throw new IllegalArgumentException("Nessuna informazione sull'utente");
         }
-
         if (datiUtente.getRuolo().equals(ERuolo.VENDOR)) {
             throw new IllegalArgumentException("Impossibile ordinare da venditore.");
         }
-
         Ordine carrello = daoOrdine.findCarrelloUtente(utente.getId());
         if (carrello == null) {
             throw new IllegalArgumentException("Nessun carrello, impossibile completare l'ordine");
         }
-
         List<ProdottoOrdineDTO> prodottiDTO = new ArrayList<>();
-        Iterator<ProdottoOrdine> it = carrello.getProdotti().iterator();
-
+        Iterator<ProdottoOrdine> it;
+        if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+            it = daoProdottoOrdine.findByIdOrdineAndOrdineStatus(carrello.getId(), EStatus.DRAFT).iterator();
+        } else {
+             it = carrello.getProdotti().iterator();
+        }
+        double totale = 0;
         while (it.hasNext()) {
             ProdottoOrdine po = it.next();
+            totale += po.getTotale().doubleValue();
             Prodotto p = daoProdotto.findById(po.getIdProdotto());
-
-            if (p == null) {
-                // prodotto eliminato → tolgo dal carrello
-                it.remove();
-                continue;
-            }
-
-            if (p.getQuantita() <= 0) {
+            if (p == null || p.getQuantita() <= 0) {
                 // esaurito → tolgo dal carrello
-                it.remove();
+                if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+                    daoProdottoOrdine.makeTransient(po);
+                } else {
+                    it.remove();
+                }
                 continue;
             }
-
             // Se la quantità richiesta è maggiore della disponibile → riduco
             int acquistabili = Math.min(po.getQuantita(), p.getQuantita());
             if (acquistabili <= 0) {
-                it.remove();
+                if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+                    daoProdottoOrdine.makeTransient(po);
+                } else {
+                    it.remove();
+                }
                 continue;
             }
-
             // aggiorno stock prodotto
             p.setQuantita(p.getQuantita() - acquistabili);
             daoProdotto.makePersistent(p);
-
             // aggiorno quantità effettiva dell’ordine
             po.setQuantita(acquistabili);
-
             ProdottoOrdineDTO poDTO = Mapper.map(po, ProdottoOrdineDTO.class);
             prodottiDTO.add(poDTO);
         }
-
         if (prodottiDTO.isEmpty()) {
             // nessun prodotto valido
             daoOrdine.makePersistent(carrello); // salva eventuali modifiche al carrello
             throw new IllegalArgumentException("Carrello vuoto o prodotti non disponibili");
         }
-
         carrello.setStatus(EStatus.PAID);
-        carrello.calcolaTotale();
+        carrello.setTotale(BigDecimal.valueOf(totale));
         daoOrdine.makePersistent(carrello);
-
         OrdineDTO ordineDTO = new OrdineDTO();
         ordineDTO.setId(carrello.getId());
         ordineDTO.setProdottiOrdineDTO(prodottiDTO);
@@ -191,7 +219,6 @@ public class ServiceOrdine {
         ordineDTO.setDataCreazione(carrello.getDataCreazione());
         ordineDTO.setValuta(carrello.getValuta());
         ordineDTO.setTotale(carrello.getTotale());
-
         return ordineDTO;
     }
 
@@ -246,11 +273,18 @@ public class ServiceOrdine {
         if (ordine == null) {
             throw new IllegalArgumentException("Carrello vuoto.");
         }
-        boolean removed = ordine.getProdotti().removeIf(p -> p.getIdProdotto().equals(idProdotto));
-        if (!removed) {
-            throw new IllegalArgumentException("Prodotto non trovato nel carrello.");
+        if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+            List<ProdottoOrdine> prodotti = daoProdottoOrdine.findByIdOrdineAndOrdineStatus(ordine.getId(), EStatus.DRAFT);
+            ProdottoOrdine toRemove = prodotti.stream().filter(p -> p.getIdProdotto().equals(idProdotto)).findFirst().orElse(null);
+            if (toRemove == null) {
+                throw new IllegalArgumentException("Prodotto non trovato nel carrello");
+            }
+        } else {
+            boolean removed = ordine.getProdotti().removeIf(p -> p.getIdProdotto().equals(idProdotto));
+            if (!removed) {
+                throw new IllegalArgumentException("Prodotto non trovato nel carrello");
+            }
         }
-
         daoOrdine.makePersistent(ordine);
     }
 

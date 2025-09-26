@@ -39,13 +39,4 @@ public class DatiUtente {
         this.statoUtente = statoUtente;
     }
 
-    public Prodotto getProdottoById(Long id) {
-        for (Prodotto p: prodotti) {
-            if (p.getId() == id) {
-                return p;
-            }
-        }
-        return null;
-    }
-
 }

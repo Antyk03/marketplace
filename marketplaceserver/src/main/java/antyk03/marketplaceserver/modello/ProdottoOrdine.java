@@ -3,6 +3,7 @@ package antyk03.marketplaceserver.modello;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -16,6 +17,8 @@ public class ProdottoOrdine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long idProdotto;
+    @Setter
+    private Long idOrdine;
     private int quantita;
     private BigDecimal prezzoUnitario;
 

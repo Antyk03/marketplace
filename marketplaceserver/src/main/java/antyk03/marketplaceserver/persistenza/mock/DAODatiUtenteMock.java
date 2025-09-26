@@ -1,6 +1,7 @@
 package antyk03.marketplaceserver.persistenza.mock;
 
 import antyk03.marketplaceserver.modello.DatiUtente;
+import antyk03.marketplaceserver.modello.Prodotto;
 import antyk03.marketplaceserver.persistenza.IDAODatiUtente;
 
 public class DAODatiUtenteMock extends DAOGenericoMock<DatiUtente> implements IDAODatiUtente {
@@ -14,5 +15,6 @@ public class DAODatiUtenteMock extends DAOGenericoMock<DatiUtente> implements ID
         }
         return  null;
     }
+
 
 }

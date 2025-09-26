@@ -18,4 +18,16 @@ public class DAOProdottoMock extends DAOGenericoMock<Prodotto> implements IDAOPr
         return prodotti;
     }
 
+    @Override
+    public List<Prodotto> findByIdVenditore(Long idVenditore) {
+        List<Prodotto> prodottiVenditore = new ArrayList<>();
+        for (Prodotto prodotto: this.findAll()) {
+            if (prodotto.getIdVenditore() == idVenditore) {
+                prodottiVenditore.add(prodotto);
+            }
+        }
+        return prodottiVenditore;
+    }
+
+
 }

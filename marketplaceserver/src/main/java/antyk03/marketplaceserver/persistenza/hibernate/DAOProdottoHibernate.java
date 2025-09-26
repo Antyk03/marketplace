@@ -32,4 +32,22 @@ public class DAOProdottoHibernate extends DAOGenericoHibernate<Prodotto> impleme
         }
     }
 
+    @Override
+    public List<Prodotto> findByIdVenditore(Long idVenditore) {
+        EntityManager em = Configurazione.getInstance().getEmf().createEntityManager();
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<Prodotto> root = cq.from(Prodotto.class);
+            cq.select(root);
+            cq.where(cb.equal(root.get("idVenditore"), idVenditore));
+            List<Prodotto> results = em.createQuery(cq).getResultList();
+            return results.isEmpty() ? null : results;
+        } catch (Exception ex) {
+            throw new DAOException(ex);
+        } finally {
+            em.close();
+        }
+    }
+
 }

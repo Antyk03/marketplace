@@ -3,6 +3,7 @@ package antyk03.marketplaceserver.service;
 import antyk03.marketplaceserver.enums.ERuolo;
 import antyk03.marketplaceserver.enums.EStatoUtente;
 import antyk03.marketplaceserver.enums.EStatus;
+import antyk03.marketplaceserver.enums.EStrategiaPersistenza;
 import antyk03.marketplaceserver.modello.*;
 import antyk03.marketplaceserver.modello.dto.DatiUtenteDTO;
 import antyk03.marketplaceserver.modello.dto.ProdottoDTO;
@@ -90,7 +91,16 @@ public class ServiceDatiUtente {
             throw new IllegalArgumentException("Non puoi avere dei prodotti, sei un utente semplice.");
         }
         List<ProdottoDTO> prodottiDTO = new ArrayList<>();
-        for (Prodotto p: datiUtente.getProdotti()) {
+        List<Prodotto> prodotti;
+        if (Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+            prodotti = daoProdotto.findByIdVenditore(utente.getId());
+        } else {
+            prodotti = datiUtente.getProdotti();
+        }
+        if (prodotti == null) {
+            return new ArrayList<ProdottoDTO>();
+        }
+        for (Prodotto p: prodotti) {
             ProdottoDTO prodottoDTO = Mapper.map(p, ProdottoDTO.class);
             prodottiDTO.add(prodottoDTO);
         }
@@ -116,14 +126,13 @@ public class ServiceDatiUtente {
         if (p == null) {
             throw new IllegalArgumentException("Nessun prodotto trovato con l'id inserito");
         }
-        if (datiUtente.getProdottoById(idProdotto) == null) {
-            throw new IllegalArgumentException("Nessun prodotto trovato tra quelli posseduti.");
-        }
         if (prodottoDTO != null && prodottoDTO.getIdVenditore() != p.getIdVenditore() && prodottoDTO.getIdVenditore() != null) {
             throw new IllegalArgumentException("Impossibile cambiare l'id del venditore.");
         }
         if (prodottoDTO == null) {
-            datiUtente.getProdotti().remove(p);
+            if (!Configurazione.getInstance().getStrategiaDb().equals(EStrategiaPersistenza.DB_HIBERNATE)) {
+                datiUtente.getProdotti().remove(p);
+            }
             daoProdotto.makeTransient(p);
         } else {
             Prodotto nuovoProdotto = Mapper.map(prodottoDTO, Prodotto.class);
@@ -132,7 +141,7 @@ public class ServiceDatiUtente {
             }
             datiUtente.getProdotti().remove(p);
             datiUtente.getProdotti().add(nuovoProdotto);
-            daoProdotto.makeTransient(p);
+            //daoProdotto.makeTransient(p);
             daoProdotto.makePersistent(nuovoProdotto);
         }
         daoDatiUtente.makePersistent(datiUtente);
@@ -141,6 +150,9 @@ public class ServiceDatiUtente {
     public List<ProdottoDTO> visualizzaCatalogo() {
         List<Prodotto> prodotti = daoProdotto.findAllBuyable();
         List<ProdottoDTO> prodottiDTO = new ArrayList<>();
+        if (prodotti == null) {
+            return new ArrayList<ProdottoDTO>();
+        }
         for (Prodotto p : prodotti) {
             prodottiDTO.add(Mapper.map(p, ProdottoDTO.class));
         }
